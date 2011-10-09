@@ -37,6 +37,7 @@ class SneakBot
             since_id = mention['id'] if mention['id'] > since_id
             sender = mention['user']['screen_name']
             text = mention['text']
+            next unless /^@sneaker_bot /.match text.downcase
             print "#{sender}: #{text} - "
             if %w(ja jo jupp yes).any? {|str| text.downcase.include? str}
                 puts "ja"
