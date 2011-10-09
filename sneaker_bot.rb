@@ -72,7 +72,7 @@ class SneakBot
         string = "Status: #{@data[:current][:sum]} \n"
         string += @data[:current][:members].collect{|mem| mem[0] + (mem[1][:count]>1?"+#{mem[1][:count]-1}":"")}.join(', ')
         @twitter.update string
-        #puts string
+        puts "Twitter: #{string}"
     end
     
     def save_data
