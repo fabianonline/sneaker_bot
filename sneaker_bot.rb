@@ -37,7 +37,12 @@ class SneakBot
     
     def process_tweets
         since_id = @data[:maxknownid] || 1
-        mentions = @twitter.mentions(:since_id=>since_id).reverse
+        mentions = begin
+            @twitter.mentions(:since_id=>since_id).reverse
+        rescue
+            puts "Twitter machte Probleme."
+            exit 1
+        end
         mentions.each do |mention|
             since_id = mention['id'] if mention['id'] > since_id
             sender = mention['user']['screen_name']
