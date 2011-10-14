@@ -75,8 +75,11 @@ class SneakBot
     def tweet_status
         return if @data[:current][:members].count == 0
         return unless @status_changed
-        string = Time.now.strftime('%d.%m. %H:%M: ') + "Status: #{@data[:current][:sum]} \n"
-        string += @data[:current][:members].collect{|mem| mem[0] + (mem[1][:count]>1?"+#{mem[1][:count]-1}":"")}.join(', ')
+        time = Time.now.strftime('%a %H:%M')
+        count = @data[:current][:sum]
+        members = @data[:current][:members].collect{|mem| mem[0] + (mem[1][:count]>1?"+#{mem[1][:count]-1}":"")}.join(', ')
+        string = "Stand #{time}: [#{count}]\n#{members}"
+        
         @twitter.update string
         p "Twitter: #{string}"
     end
