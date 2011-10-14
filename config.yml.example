@@ -7,7 +7,6 @@ twitter:
 settings:
     status:
         time: "19:00"
-        day: "thursday"
     reset:
         time: "20:30"
         day: "thursday"

@@ -28,6 +28,11 @@ class SneakBot
             
             send_invitation
         end
+        
+        unless @data[:next_status] && @data[:next_status]>Time.now
+            @data[:next_status] = Chronic.parse("next #{@config['settings']['status']['time']}")
+            @status_changed = true
+        end
     end
     
     def process_tweets
