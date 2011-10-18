@@ -7,6 +7,8 @@ require 'yaml'
 require 'chronic'
 
 class SneakBot
+    attr_accessor :twitter, :config, :data, :status_changed
+    
     def initialize
         @config = YAML.load_file(File.join(File.dirname(__FILE__), 'config.yml'))
         @status_changed = false
@@ -112,9 +114,11 @@ class SneakBot
     end
 end
 
-bot = SneakBot.new
-bot.check_times
-bot.process_tweets
-bot.tweet_status
+if $0==__FILE__
+    bot = SneakBot.new
+    bot.check_times
+    bot.process_tweets
+    bot.tweet_status
 
-bot.save_data
+    bot.save_data
+end
