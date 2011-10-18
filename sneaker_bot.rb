@@ -52,12 +52,16 @@ class SneakBot
             if %w(ja jo jupp yes).any? {|str| text.downcase.include? str}
                 puts "ja"
                 @data[:current][:members] ||= {}
-                @data[:current][:members][sender] ||= {}
+                @data[:current][:members][sender] = {}
                 @data[:current][:members][sender][:text] = text
                 @data[:current][:members][sender][:count] = 1
                 if matches = /\+ *(\d+)/.match(text)
                     @data[:current][:members][sender][:count] += matches[1].to_i
                 end
+                extras = []
+                extras << :bc if /bonus/i.match(text)
+                extras << :fk if /frei/i.match(text)
+                @data[:current][:members][sender][:extras] = extras
                 @status_changed = true
             elsif %w(nein nope no nö nicht).any? {|str| text.downcase.include? str}
                 puts "nein"
@@ -82,7 +86,12 @@ class SneakBot
         return unless @status_changed
         time = Time.now.strftime('%a %H:%M')
         count = @data[:current][:sum]
-        members = @data[:current][:members].collect{|mem| mem[0] + (mem[1][:count]>1?"+#{mem[1][:count]-1}":"")}.join(', ')
+        members = @data[:current][:members].collect do |mem|
+            string = mem[0];
+            string+= "+#{mem[1][:count]-1}" if mem[1][:count]>1
+            string+= " [" + mem[1][:extras].collect{|e| e.to_s.upcase}.join(",") + "]" if mem[1][:extras] && mem[1][:extras].count>0
+            string
+        end.join(', ')
         string = "Stand #{time}: [#{count}]\n#{members}"
         
         @twitter.update string
