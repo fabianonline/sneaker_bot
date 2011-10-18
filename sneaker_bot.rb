@@ -69,6 +69,8 @@ class SneakBot
                 puts "nein"
                 @data[:current][:members].delete sender rescue nil
                 @status_changed = true
+            elsif text.downcase.include? "status"
+                @status_changed = true
             else
                 puts "hä?"
             end
