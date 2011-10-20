@@ -54,16 +54,12 @@ class SneakBot
             if %w(ja jo jupp yes).any? {|str| text.downcase.include? str}
                 puts "ja"
                 @data[:current][:members] ||= {}
-                @data[:current][:members][sender] = {}
-                @data[:current][:members][sender][:text] = text
-                @data[:current][:members][sender][:count] = 1
+                @data[:current][:members][sender] = {:text=>text, :count=>1, :extras=>[]}
                 if matches = /\+ *(\d+)/.match(text)
                     @data[:current][:members][sender][:count] += matches[1].to_i
                 end
-                extras = []
-                extras << :bc if /bonus/i.match(text)
-                extras << :fk if /frei/i.match(text)
-                @data[:current][:members][sender][:extras] = extras
+                @data[:current][:members][sender][:extras] << :b if /bonus/i.match(text)
+                @data[:current][:members][sender][:extras] << :f if /frei/i.match(text)
                 @status_changed = true
             elsif %w(nein nope no nö nicht).any? {|str| text.downcase.include? str}
                 puts "nein"
@@ -109,7 +105,7 @@ class SneakBot
     
     def reset_data
         @data[:backup] << @data[:current]
-        @data[:current] = {}
+        @data[:current] = {:members=>{}}
     end
     
     def send_invitation
