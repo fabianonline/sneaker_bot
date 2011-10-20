@@ -6,7 +6,7 @@ require 'twitter_oauth'
 require 'yaml'
 require 'chronic'
 
-class SneakBot
+class SneakerBot
     attr_accessor :twitter, :config, :data, :status_changed
     
     def initialize
@@ -121,7 +121,7 @@ class SneakBot
 end
 
 if $0==__FILE__
-    bot = SneakBot.new
+    bot = SneakerBot.new
     bot.check_times
     bot.process_tweets
     bot.tweet_status
