@@ -123,7 +123,7 @@ end
 if $0==__FILE__
     bot = SneakerBot.new
     bot.check_times
-    bot.process_tweets
+    bot.load_tweets
     bot.tweet_status
 
     bot.save_data
