@@ -37,7 +37,7 @@ class SneakBot
         end
     end
     
-    def process_tweets
+    def load_tweets
         since_id = @data[:maxknownid] || 1
         mentions = begin
             @twitter.mentions(:since_id=>since_id).reverse
@@ -49,30 +49,36 @@ class SneakBot
             since_id = mention['id'] if mention['id'] > since_id
             sender = mention['user']['screen_name']
             text = mention['text']
-            next unless /^@sneaker_bot /.match text.downcase
-            print "#{sender}: #{text} - "
-            if %w(ja jo jupp yes).any? {|str| text.downcase.include? str}
-                puts "ja"
-                @data[:current][:members] ||= {}
-                @data[:current][:members][sender] = {:text=>text, :count=>1, :extras=>[]}
-                if matches = /\+ *(\d+)/.match(text)
-                    @data[:current][:members][sender][:count] += matches[1].to_i
-                end
-                @data[:current][:members][sender][:extras] << :b if /bonus/i.match(text)
-                @data[:current][:members][sender][:extras] << :f if /frei/i.match(text)
-                @status_changed = true
-            elsif %w(nein nope no nö nicht).any? {|str| text.downcase.include? str}
-                puts "nein"
-                @data[:current][:members].delete sender rescue nil
-                @status_changed = true
-            elsif text.downcase.include? "status"
-                @status_changed = true
-            else
-                puts "hä?"
-            end
+            process_tweet :sender=>sender, :text=>text
         end
         @data[:maxknownid] = since_id
         calculate_sum if @status_changed
+    end
+    
+    def process_tweet(data={})
+        text = data[:text]
+        sender = data[:sender]
+        next unless /^@sneaker_bot /.match text.downcase
+        print "#{sender}: #{text} - "
+        if %w(ja jo jupp yes).any? {|str| text.downcase.include? str}
+            puts "ja"
+            @data[:current][:members] ||= {}
+            @data[:current][:members][sender] = {:text=>text, :count=>1, :extras=>[]}
+            if matches = /\+ *(\d+)/.match(text)
+                @data[:current][:members][sender][:count] += matches[1].to_i
+            end
+            @data[:current][:members][sender][:extras] << :b if /bonus/i.match(text)
+            @data[:current][:members][sender][:extras] << :f if /frei/i.match(text)
+            @status_changed = true
+        elsif %w(nein nope no nö nicht).any? {|str| text.downcase.include? str}
+            puts "nein"
+            @data[:current][:members].delete sender rescue nil
+            @status_changed = true
+        elsif text.downcase.include? "status"
+            @status_changed = true
+        else
+            puts "hä?"
+        end
     end
     
     def calculate_sum
