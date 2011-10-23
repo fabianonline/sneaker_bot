@@ -36,6 +36,11 @@ class SneakerBot
             @data[:next_status] = Chronic.parse("next #{@config['settings']['status']['time']}")
             @status_changed = true
         end
+        
+        unless @data[:next_reminder] && @data[:next_reminder]>Time.now
+            @data[:next_reminder] = Chronic.parse("next #{@config['settings']['reminder']['day']} #{@config['settings']['reminder']['time']}")
+            send_reminder
+        end
     end
     
     def load_tweets
@@ -119,12 +124,21 @@ class SneakerBot
     def send_invitation
         @twitter.update('Eine neue Sneak steht an. Anmeldung per "ja" oder "ja +1", Abmeldung per "nein".')
     end
+    
+    def send_reminder
+        old_members = @data[:backup][-2..-1].collect{|d| d[:members].keys rescue []}.flatten.uniq
+        current_members = @data[:current][:members].keys rescue []
+        to_remind = old_members - current_members
+        to_remind.each do |receiver|
+            @twitter.update "@#{receiver} Erinnerung: Du wolltest mir noch mitteilen, ob du diese Woche zur Sneak mitkommen willst... :D" rescue nil
+        end
+    end
 end
 
 if $0==__FILE__
     bot = SneakerBot.new
-    bot.check_times
     bot.load_tweets
+    bot.check_times
     bot.tweet_status
 
     bot.save_data
