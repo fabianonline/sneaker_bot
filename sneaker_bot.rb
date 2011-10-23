@@ -73,7 +73,8 @@ class SneakerBot
             @status_changed = true
         elsif %w(nein nope no nö nicht).any? {|str| text.downcase.include? str}
             puts "nein"
-            @data[:current][:members].delete sender rescue nil
+            @data[:current][:members] ||= {}
+            @data[:current][:members][sender] = {:text=>text, :count=>0, :extras=>[]}
             @status_changed = true
         elsif text.downcase.include? "status"
             @status_changed = true
