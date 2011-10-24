@@ -101,11 +101,12 @@ class SneakerBot
         time = "#{days[Date.today.wday]} #{Time.now.strftime('%H:%M')}"
         count = @data[:current][:sum]
         members = @data[:current][:members].collect do |mem|
+            next if mem[1][:count]==0
             string = mem[0];
             string+= "+#{mem[1][:count]-1}" if mem[1][:count]>1
             string+= " [" + mem[1][:extras].collect{|e| e.to_s.upcase}.join(",") + "]" if mem[1][:extras] && mem[1][:extras].count>0
             string
-        end.join(', ')
+        end.compact.join(', ')
         string = "#{time}: #{count}\n#{members}"
         
         @twitter.update string
