@@ -64,8 +64,12 @@ class SneakerBot
     def process_tweet(data={})
         text = data[:text]
         sender = data[:sender]
-        next unless /^@sneaker_bot /.match text.downcase
         print "#{sender}: #{text} - "
+        unless /^@sneaker_bot /.match(text.downcase)
+            puts "nicht an mich. Ignoriere..."
+            return nil
+        end
+
         if %w(ja jo jupp yes).any? {|str| text.downcase.include? str}
             puts "ja"
             @data[:current][:members] ||= {}
@@ -82,6 +86,7 @@ class SneakerBot
             @data[:current][:members][sender] = {:text=>text, :count=>0, :extras=>[]}
             @status_changed = true
         elsif text.downcase.include? "status"
+            puts "status"
             @status_changed = true
         else
             puts "hä?"
