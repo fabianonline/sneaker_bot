@@ -70,7 +70,7 @@ class SneakerBot
             return nil
         end
 
-        if %w(ja jo jupp yes).any? {|str| text.downcase.include? str}
+        if /\b(ja|jo|jupp|yes)\b/i.match(text)
             puts "ja"
             @data[:current][:members] ||= {}
             @data[:current][:members][sender] = {:text=>text, :count=>1, :extras=>[]}
@@ -80,12 +80,12 @@ class SneakerBot
             @data[:current][:members][sender][:extras] << :b if /bonus/i.match(text)
             @data[:current][:members][sender][:extras] << :f if /frei/i.match(text)
             @status_changed = true
-        elsif %w(nein nope no nö nicht).any? {|str| text.downcase.include? str}
+        elsif /\b(nein|nope|no|nö)\b/i.match(text)
             puts "nein"
             @data[:current][:members] ||= {}
             @data[:current][:members][sender] = {:text=>text, :count=>0, :extras=>[]}
             @status_changed = true
-        elsif text.downcase.include? "status"
+        elsif /\bstatus\b/i.match(text)
             puts "status"
             @status_changed = true
         else
