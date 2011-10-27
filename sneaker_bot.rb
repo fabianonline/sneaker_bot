@@ -31,6 +31,7 @@ class SneakerBot < TwitterBot
             
             send_invitation
             process_tweet(:sender=>"fabianonline", :text=>"@sneaker_bot ja")
+            calculate_sum
         end
         
         unless @data[:next_status] && @data[:next_status]>Time.now
