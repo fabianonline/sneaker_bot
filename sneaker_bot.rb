@@ -134,7 +134,7 @@ class SneakerBot < TwitterBot
     end
     
     def send_reminder
-        old_members = @data[:backup][-2..-1].collect{|d| d[:members].keys rescue []}.flatten.uniq
+        old_members = @data[:backup][(@config['settings']['reminder']['event_count']*-1)..-1].collect{|d| d[:members].keys rescue []}.flatten.uniq
         current_members = @data[:current][:members].keys rescue []
         to_remind = old_members - current_members
         to_remind.each do |receiver|

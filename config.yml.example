@@ -13,3 +13,4 @@ settings:
     invitation:
         time: "12:00"
         day: "monday"
+        event_count: 2
