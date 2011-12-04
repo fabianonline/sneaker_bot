@@ -109,7 +109,8 @@ class SneakerBot < TwitterBot
         count = @data[:current][:sum]
         members = @data[:current][:members].collect do |mem|
             next if mem[1][:count]==0
-            string = mem[0];
+            # Falls vorhanden, Alias nutzen. Ansonsten Twitter-Nick verwenden.
+            string = @config["aliases"][mem[0].downcase] || mem[0];
             string+= "+#{mem[1][:count]-1}" if mem[1][:count]>1
             string+= " [" + mem[1][:extras].collect{|e| e.to_s.upcase}.join(",") + "]" if mem[1][:extras] && mem[1][:extras].count>0
             string
