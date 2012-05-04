@@ -72,7 +72,10 @@ class SneakerBot < TwitterBot
             return nil
         end
 
-        if /\b(ja|jo|jupp|yes)\b/i.match(text)
+		if (p=/^@sneaker_bot set @?([^ ]+) (.+)$/.match(text)) && @config['admins'].include?(sender)
+			puts "admin"
+			process_tweet({:text=>"@sneaker_bot #{p[2]}", :sender=>p[1]})
+        elsif /\b(ja|jo|jupp|yes)\b/i.match(text)
             puts "ja"
             @data[:current][:members] ||= {}
             @data[:current][:members][sender] = {:text=>text, :count=>1, :extras=>[]}
