@@ -30,7 +30,7 @@ class SneakerBot < TwitterBot
             @data[:current][:target] = next_target
             
             send_invitation
-            process_tweet(:sender=>"fabianonline", :text=>"@sneaker_bot ja")
+			process_defaults
             calculate_sum
         end
         
@@ -44,6 +44,12 @@ class SneakerBot < TwitterBot
             send_reminder
         end
     end
+
+	def process_defaults
+		@data[:users].each do |user, usersettings|
+			process_tweet(:sender=>user, :text=>"@sneaker_bot #{usersettings[:default]}") if usersettings[:default]
+		end rescue nil
+	end
     
     def load_tweets
         since_id = @data[:maxknownid] || 1
@@ -62,6 +68,12 @@ class SneakerBot < TwitterBot
         @data[:maxknownid] = since_id
         calculate_sum if @status_changed
     end
+
+	def set_user_value(user, data={})
+		@data[:users] = {} unless @data[:users]
+		@data[:users][user] = {} unless @data[:users][user]
+		data.each {|key, value| @data[:users][user][key] = value}
+	end
     
     def process_tweet(data={})
         text = data[:text]
@@ -75,6 +87,10 @@ class SneakerBot < TwitterBot
 		if (p=/^@sneaker_bot set @?([^ ]+) (.+)$/.match(text)) && @config['admins'].include?(sender)
 			puts "admin"
 			process_tweet({:text=>"@sneaker_bot #{p[2]}", :sender=>p[1]})
+		elsif (p=/\bauto\b(.+)/i.match(text))
+			puts "auto"
+			set_user_value(sender, :auto=>p[1].strip)
+			process_tweet({:text=>"@sneaker_bot #{p[1]}", :sender=>sender})
         elsif /\b(ja|jo|jupp|yes)\b/i.match(text)
             puts "ja"
             @data[:current][:members] ||= {}
