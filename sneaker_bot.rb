@@ -47,7 +47,7 @@ class SneakerBot < TwitterBot
 
 	def process_defaults
 		@data[:users].each do |user, usersettings|
-			process_tweet(:sender=>user, :text=>"@sneaker_bot #{usersettings[:default]}") if usersettings[:default]
+			process_tweet(:sender=>user, :text=>usersettings[:default], :internal=>true) if usersettings[:default]
 		end rescue nil
 	end
     
@@ -79,18 +79,18 @@ class SneakerBot < TwitterBot
         text = data[:text]
         sender = data[:sender]
         print "#{sender}: #{text} - "
-        unless /^@sneaker_bot /.match(text.downcase)
+        unless /^@sneaker_bot /.match(text.downcase) || data[:internal]
             puts "nicht an mich. Ignoriere..."
             return nil
         end
 
 		if (p=/^@sneaker_bot set @?([^ ]+) (.+)$/.match(text)) && @config['admins'].include?(sender)
 			puts "admin"
-			process_tweet({:text=>"@sneaker_bot #{p[2]}", :sender=>p[1]})
+			process_tweet({:text=>"#{p[2]}", :sender=>p[1], :internal=>true, :admin=>true})
 		elsif (p=/\bauto\b(.+)/i.match(text))
 			puts "auto"
 			set_user_value(sender, :auto=>p[1].strip)
-			process_tweet({:text=>"@sneaker_bot #{p[1]}", :sender=>sender})
+			process_tweet({:text=>"#{p[1]}", :sender=>sender, :internal=>true})
         elsif /\b(ja|jo|jupp|yes)\b/i.match(text)
             puts "ja"
             @data[:current][:members] ||= {}
