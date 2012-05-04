@@ -114,7 +114,7 @@ class SneakerBot < TwitterBot
             string+= "+#{mem[1][:count]-1}" if mem[1][:count]>1
             string+= " [" + mem[1][:extras].collect{|e| e.to_s.upcase}.join(",") + "]" if mem[1][:extras] && mem[1][:extras].count>0
             string
-        end.compact.join(', ')
+        end.compact.sort.join(', ')
         string = "#{time}: #{count}\n#{members}"
         
         @twitter.update string
