@@ -98,6 +98,7 @@ class SneakerBot < TwitterBot
             if matches = /\+ *(\d+)/.match(text)
                 @data[:current][:members][sender][:count] += matches[1].to_i
             end
+			@data[:current][:members][sender][:extras] << :p if /psp/i.match(text)
             @data[:current][:members][sender][:extras] << :b if /bonus/i.match(text)
             @data[:current][:members][sender][:extras] << :f if /frei/i.match(text)
             @status_changed = true
