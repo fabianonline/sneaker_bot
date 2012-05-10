@@ -89,9 +89,9 @@ class SneakerBot < TwitterBot
 			process_tweet({:text=>"#{p[2]}", :sender=>p[1], :internal=>true, :admin=>true})
 		elsif (p=/\bauto\b(.+)/i.match(text))
 			puts "auto"
-			set_user_value(sender, :auto=>p[1].strip)
+			set_user_value(sender, :default=>p[1].strip)
 			process_tweet({:text=>"#{p[1]}", :sender=>sender, :internal=>true})
-        elsif /\b(ja|jo|jupp|yes)\b/i.match(text)
+        elsif /\b(ja|jo|jupp|yes|jop)\b/i.match(text)
             puts "ja"
             @data[:current][:members] ||= {}
             @data[:current][:members][sender] = {:text=>text, :count=>1, :extras=>[]}
