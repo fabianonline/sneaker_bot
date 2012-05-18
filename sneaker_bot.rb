@@ -5,9 +5,8 @@ require 'rubygems'
 require 'twitter_oauth'
 require 'yaml'
 require 'chronic'
-require 'twitter_bot'
 
-class SneakerBot < TwitterBot
+class SneakerBot
     attr_accessor :twitter, :config, :data, :status_changed
     
     def initialize
