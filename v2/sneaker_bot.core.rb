@@ -101,7 +101,7 @@ class SneakerBot
 	end
 	
 	def give_points
-		Sneak.newest.participations.all(:sum.gt=>0, :active=>true).each {|p| p.user.bonus_points+=p.sneak.bonus_points; p.user.save} rescue nil
+		Sneak.newest.participations.all(:sum.gt=>0, :active=>true).each {|p| p.user.bonus_points=(p.user.bonus_points%5)+p.sneak.bonus_points; p.user.save} rescue nil
 	end
 	
 	def process_auto
