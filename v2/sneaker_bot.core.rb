@@ -24,7 +24,7 @@ class SneakerBot
 	
 	def get_tweets
 		since_id = Value.get("since_id", 1)
-		p tweets = @twitter.mentions(:since_id=>since_id)#.reverse
+		tweets = @twitter.mentions(:since_id=>since_id)#.reverse
 		tweets.each do |tweet|
 			since_id = tweet['id'] if tweet['id']>since_id
 		end
@@ -42,7 +42,7 @@ class SneakerBot
 		
 	def analyze_tweet(hash={})
 		text = hash[:text]
-		print text
+		print text "  -  "
 		unless /^@sneaker_bot\b/i.match(text) || hash[:internal]
 			puts "Nicht direkt an mich. Ignorieren..."
 			puts "Text war: #{text.inspect}"
@@ -86,6 +86,18 @@ class SneakerBot
 	end
 	
 	def tweet_status
+		text = "#{%w(Mo Di Mi Do Fr Sa So)[Date.today.wday]} #{Time.now.strftime("%H:%M")}: #{Sneak.newest.sum}\n"
+		text += Sneak.newest.participations.all(:sum.gt=>0, :active=>true).collect do |part|
+			str = "#{part.user.alias || part.user.username}"
+			str << " +#{part.sum-1}" if part.sum>1
+			tags = []
+			tags << "B" if part.user.bonus_points>=5
+			tags << "P" if part.psp
+			tags << "F" if part.frei
+			str << " [#{tags.join(',')}]" if tags.count>0
+			str
+		end.sort.join(", ")
+		tweet(text)
 	end
 	
 	def give_points
@@ -114,9 +126,19 @@ class SneakerBot
 			sb.process_auto
 			sb.send_invitation
 		end
+
+		next_status_time = Value.get('next_status_time', Time.new)
+		if next_status_time < Time.now
+			sb.status_changed = true
+			Value.set('next_status_time', Chronic.parse("next #{$config[:settings][:status_time]}"))
+		end
 		
 		sb.get_tweets.each {|t| sb.process_tweet(t)}
 		Sneak.newest.update_sum
 		sb.tweet_status if sb.status_changed
+
+		puts
+		puts
+		puts
 	end
 end
