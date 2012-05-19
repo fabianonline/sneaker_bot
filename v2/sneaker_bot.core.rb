@@ -96,7 +96,7 @@ class SneakerBot
 			str = "#{part.user.alias || part.user.username}"
 			str << " +#{part.sum-1}" if part.sum>1
 			tags = []
-			tags << "B" if part.user.bonus_points>=5
+			tags << "B" if part.user.bonus_points>=5 && Sneak.newest.time.day<=7
 			tags << "P" if part.psp
 			tags << "F" if part.frei
 			str << " [#{tags.join(',')}]" if tags.count>0
@@ -106,7 +106,11 @@ class SneakerBot
 	end
 	
 	def give_points
-		Sneak.newest.participations.all(:sum.gt=>0, :active=>true).each {|p| p.user.bonus_points=(p.user.bonus_points%5)+p.sneak.bonus_points; p.user.save} rescue nil
+		Sneak.newest.participations.all(:sum.gt=>0, :active=>true).each do |p|
+			p.user.bonus_points = p.user.bonus_points % 5 unless p.sneak.time.day<=7 || p.frei
+			p.user.bonus_points += p.sneak.bonus_points
+			p.user.save
+		end rescue nil
 	end
 	
 	def process_auto
