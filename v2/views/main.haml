@@ -1,0 +1,60 @@
+!!! 5
+%html
+	%head
+		%title Sneaker-Bot
+
+	%body
+		%h1 Sneak am #{Sneak.newest.time.strftime "%d.%m.%Y"}
+		%strong Bonus-Punkte für diese Sneak:
+		= Sneak.newest.bonus_points
+		
+		%h2 Anmeldungen
+		%table
+			%tr
+				%th Name
+				%th Anzahl
+				%th PSP
+				%th Bonus
+				%th Freikarte
+
+			- Sneak.newest.participations.all(:active=>true).each do |p|
+				%tr
+					%td= p.user.alias || p.user.username
+					%td= p.sum
+					%td= p.psp ? "X" : "-"
+					%td= p.user.bonus_points>=5 ? "X" : "-"
+					%td= p.frei ? "X" : "-"
+        
+		%h2 Bonuspunktestand
+		%table
+			%tr
+				%th Name
+				%th Anzahl Stempel
+
+			- User.all.each do |u|
+				%tr
+					%td= u.alias || u.username
+					%td= u.bonus_points
+		
+		%h2 Bezahlung
+		%table
+			%tr
+				%th Bezahlen
+				%th Bonuskarten
+
+			%tr
+				%td= Sneak.newest.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| u.bonus_points<5}.collect{|u| u.alias||u.username}.join("<br />")
+				%td= Sneak.newest.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| u.bonus_points>4}.collect{|u| u.alias||u.username}.join("<br />")
+
+		%h2 Bonuskarten
+		%table
+			%tr
+				%th Ganz neu
+				%th Auffüllen
+				%th Halb und halb
+			
+			%tr
+				%td= Sneak.newest.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| (u.bonus_points%5)==0}.collect{|u| u.alias||u.username}.join("<br />")
+				%td= Sneak.newest.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| u.bonus_points%5>0 && (u.bonus_points%5)+Sneak.newest.bonus_points<=5}.collect{|u| u.alias||u.username}.join("<br />")
+				%td= Sneak.newest.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| u.bonus_points%5>0 && (u.bonus_points%5)+Sneak.newest.bonus_points>5}.collect{|u| u.alias||u.username}.join("<br />")
+
