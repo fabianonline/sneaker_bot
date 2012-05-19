@@ -46,11 +46,9 @@ class SneakerBot
 		
 	def analyze_tweet(hash={})
 		text = hash[:text]
-		print text "  -  "
+		print text + "  -  "
 		unless /^@sneaker_bot\b/i.match(text) || hash[:internal]
 			puts "Nicht direkt an mich. Ignorieren..."
-			puts "Text war: #{text.inspect}"
-			puts "Hash war: #{hash.inspect}"
 			return
 		end
 
