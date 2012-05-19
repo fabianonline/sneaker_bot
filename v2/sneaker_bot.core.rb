@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'bundler'
+require 'open-uri'
 Bundler.require
 
 $config = YAML.load_file(File.join(File.dirname(__FILE__), 'config.yml'))
@@ -119,9 +120,21 @@ class SneakerBot
 	def tweet(text)
 		puts "TWEET: #{text}"
 	end
+
+	def sneak_reservable?
+		html = open("http://dortmund-ticket.global-ticketing.com/gt/info"){|f| f.read}
+		html.match(/sneak/i)!=nil
+	end
 	
 	def self.cron
 		sb = SneakerBot.new
+
+		unless Value.get("next_website_check_at", Time.new)>Time.now
+			if sb.sneak_reservable?
+				sb.tweet("@fabianonline Die Sneak ist ab *jetzt* anscheinend reservierbar.")
+				Value.set("next_website_check_at", Sneak.newest.time+1)
+			end
+		end
 		
 		next_sneak = Sneak.newest.time rescue DateTime.new
 		if next_sneak < DateTime.now
