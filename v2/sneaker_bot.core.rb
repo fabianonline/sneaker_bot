@@ -33,7 +33,10 @@ class SneakerBot
 	end
 	
 	def process_tweet(tweet)
-		user = User.first_or_new(:twitter_id=>tweet["user"]["id"])
+		user = User.first(:twitter_id=>tweet["user"]["id"])
+		user = User.first(:username=>tweet["user"]["screen_name"]) if user.nil?
+		user = User.new if user.nil?
+		user.twitter_id = tweet["user"]["id"]
 		user.username = tweet["user"]["screen_name"]
 		user.save
 		
