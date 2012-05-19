@@ -38,7 +38,8 @@ class SneakerBot
 		user = User.new if user.nil?
 		user.twitter_id = tweet["user"]["id"]
 		user.username = tweet["user"]["screen_name"]
-		user.save
+		# don't save yet. analyze_tweet will do that, if the tweet was okay
+		# This is to prevent spam bots from being added to the Users table.
 		
 		analyze_tweet(:user=>user, :text=>tweet["text"])
 	end
@@ -52,6 +53,8 @@ class SneakerBot
 			puts "Hash war: #{hash.inspect}"
 			return
 		end
+
+		hash[:user].save
 		
 		if (p=/set @?([^ ]+) (.+)$/i.match(text))
 			unless hash[:user].admin
