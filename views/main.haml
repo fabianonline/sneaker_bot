@@ -51,11 +51,13 @@
 				%tr
 					%th Name
 					%th Anzahl Stempel
+					%th Standardwert
 
 				- User.all.each do |u|
 					%tr
 						%td= u.alias || u.username
 						%td= u.bonus_points
+						%td= u.auto
 		
 		%section
 			%h2 Bezahlung
