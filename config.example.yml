@@ -1,0 +1,14 @@
+:twitter:
+    :consumer_key: ""
+    :consumer_secret: ""
+    :token: ""
+    :secret: ""
+
+:settings:
+    :status_time: "18:00"
+    :sneak_time: "thursday 20:00"
+    :reminder:
+        :time: "monday 12:00"
+        :count: 4
+
+:database: "mysql://<username>:<password>@<host>/<database>"
