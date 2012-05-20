@@ -73,6 +73,10 @@ class SneakerBot
 				else hash[:user].bonus_points = p[2]
 			end
 			hash[:user].save
+		elsif ((p=/\balias\b(.+)/i.match(text)) && hash[:internal])
+			puts "alias"
+			hash[:user].alias = p[1].strip
+			hash[:user].save
 		elsif (p=/\bauto\b(.+)/i.match(text))
 			puts "auto"
 			hash[:user].auto = p[1].strip
