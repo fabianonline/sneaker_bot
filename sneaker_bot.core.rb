@@ -12,7 +12,7 @@ require File.join(File.dirname(__FILE__), 'models.rb')
 DataMapper.finalize
 
 class SneakerBot
-	attr_accessor :status_changed
+	attr_accessor :status_changed, :current_sneak
 	def initialize
 		@twitter = TwitterOAuth::Client.new(
 				:consumer_key => $config[:twitter][:consumer_key],
@@ -21,6 +21,7 @@ class SneakerBot
 				:secret => $config[:twitter][:secret]
 		)
 		@status_changed = false
+		@current_sneak = Sneak.newest
 	end
 	
 	def get_tweets
@@ -70,8 +71,8 @@ class SneakerBot
 			hash[:user].save
 		elsif /\b(ja|jo|jupp|yes|jop)\b/i.match(text)
 			puts "ja"
-			Participation.all(:user=>hash[:user], :sneak=>Sneak.newest).each {|p| p.active=false; p.save}
-			p = Participation.new(:text=>text, :user=>hash[:user], :sneak=>Sneak.newest, :sum=>1)
+			Participation.all(:user=>hash[:user], :sneak=>@current_sneak).each {|p| p.active=false; p.save}
+			p = Participation.new(:text=>text, :user=>hash[:user], :sneak=>@current_sneak, :sum=>1)
 			if matches = /\+ *(\d+)/.match(text)
 				p.sum += matches[1].to_i
 			end
@@ -82,8 +83,8 @@ class SneakerBot
 			@status_changed = true
 		elsif /\b(nein|nope|no|nö)\b/i.match(text)
 			puts "nein"
-			Participation.all(:user=>hash[:user], :sneak=>Sneak.newest).each {|p| p.active=false; p.save}
-			Participation.create(:text=>text, :user=>hash[:user], :sneak=>Sneak.newest, :sum=>0)
+			Participation.all(:user=>hash[:user], :sneak=>@current_sneak).each {|p| p.active=false; p.save}
+			Participation.create(:text=>text, :user=>hash[:user], :sneak=>@current_sneak, :sum=>0)
 			@status_changed = true
 		elsif /\bstatus\b/i.match(text)
 			puts "status"
@@ -92,12 +93,12 @@ class SneakerBot
 	end
 	
 	def tweet_status
-		text = "#{%w(Mo Di Mi Do Fr Sa So)[Date.today.wday]} #{Time.now.strftime("%H:%M")}: #{Sneak.newest.sum}\n"
-		text += Sneak.newest.participations.all(:sum.gt=>0, :active=>true).collect do |part|
+		text = "#{%w(Mo Di Mi Do Fr Sa So)[Date.today.wday]} #{Time.now.strftime("%H:%M")}: #{@current_sneak.sum}\n"
+		text += @current_sneak.participations.all(:sum.gt=>0, :active=>true).collect do |part|
 			str = "#{part.user.alias || part.user.username}"
 			str << " +#{part.sum-1}" if part.sum>1
 			tags = []
-			tags << "B" if part.user.bonus_points>=5 && Sneak.newest.time.day<=7
+			tags << "B" if part.user.bonus_points>=5 && @current_sneak.time.day<=7
 			tags << "P" if part.psp
 			tags << "F" if part.frei
 			str << " [#{tags.join(',')}]" if tags.count>0
@@ -107,8 +108,8 @@ class SneakerBot
 	end
 	
 	def give_points
-		Sneak.newest.participations.all(:sum.gt=>0, :active=>true).each do |p|
-			p.user.bonus_points = p.user.bonus_points % 5 unless p.sneak.time.day<=7 || p.frei
+		@current_sneak.participations.all(:sum.gt=>0, :active=>true).each do |p|
+			p.user.bonus_points = p.user.bonus_points % 5 unless @current_sneak.time.day<=7 || p.frei
 			p.user.bonus_points += p.sneak.bonus_points
 			p.user.save
 		end rescue nil
@@ -154,6 +155,7 @@ class SneakerBot
 		if next_sneak < DateTime.now
 			sb.give_points
 			Sneak.create
+			sb.current_sneak = Sneak.newest
 			sb.process_auto
 			sb.send_invitation
 		end
@@ -172,7 +174,7 @@ class SneakerBot
 
 		
 		sb.get_tweets.each {|t| sb.process_tweet(t)}
-		Sneak.newest.update_sum
+		sb.current_sneak.update_sum
 		sb.tweet_status if sb.status_changed
 
 		puts
