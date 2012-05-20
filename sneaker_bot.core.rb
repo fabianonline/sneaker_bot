@@ -65,6 +65,14 @@ class SneakerBot
 			puts "admin"
 			user = User.first_or_create(:username=>p[1])
 			analyze_tweet(:text=>"#{p[2]}", :user=>user, :internal=>true)
+		elsif ((p=/\bbonus([+\-=])([0-9]+)/i.match(text)) && hash[:internal])
+			puts "bonus"
+			case p[1]
+				when "+" then hash[:user].bonus_points += p[2]
+				when "-" then hash[:user].bonus_points -= p[2]
+				else hash[:user].bonus_points = p[2]
+			end
+			hash[:user].save
 		elsif (p=/\bauto\b(.+)/i.match(text))
 			puts "auto"
 			hash[:user].auto = p[1].strip
