@@ -39,6 +39,7 @@ class SneakerBot
 		user = User.new if user.nil?
 		user.twitter_id = tweet["user"]["id"]
 		user.username = tweet["user"]["screen_name"]
+		user.reminder_ignored = 0
 		# don't save yet. analyze_tweet will do that, if the tweet was okay
 		# This is to prevent spam bots from being added to the Users table.
 		
@@ -123,11 +124,20 @@ class SneakerBot
 	
 	def tweet(text)
 		puts "TWEET: #{text}"
+		@twitter.update(text)
 	end
 
 	def sneak_reservable?
 		html = open("http://dortmund-ticket.global-ticketing.com/gt/info"){|f| f.read}
 		html.match(/sneak/i)!=nil
+	end
+
+	def remind_users
+		User.all(:twitter_id.not=>nil, :reminder_ignored.lte=>$config[:settings][:reminder][:count]).select{|u| u.participations.all(:sneak=>@current_sneak).count==0}.each do |user|
+			user.reminder_ignored+=1
+			user.save
+			tweet("@#{user.username} Erinnerung: Du wolltest mir noch mitteilen, ob du diese Woche zur Sneak mitkommst oder nicht. ;-)")
+		end
 	end
 	
 	def self.cron
@@ -153,6 +163,13 @@ class SneakerBot
 			sb.status_changed = true
 			Value.set('next_status_time', Chronic.parse("next #{$config[:settings][:status_time]}"))
 		end
+
+		next_reminder_time = Value.get('next_reminder_time', Time.new)
+		if next_reminder_time < Time.now
+			Value.set('next_reminder_time', Chronic.parse("next #{$config[:settings][:reminder][:time]}"))
+			sb.remind_users
+		end
+
 		
 		sb.get_tweets.each {|t| sb.process_tweet(t)}
 		Sneak.newest.update_sum

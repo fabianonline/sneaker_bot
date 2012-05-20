@@ -8,6 +8,7 @@ class User
 	property :auto, String
 	property :bonus_points, Integer, :default=>0
 	property :admin, Boolean, :default=>false
+	property :reminder_ignored, Integer, :default=>0
 	
 	has n, :participations
 end
