@@ -4,10 +4,13 @@
 		%title Sneaker-Bot
 		:css
 			body, td { font-family: Verdana, Helvetica, Arial, sans-serif; }
-			td { border: 1px dotted #aaa; }
-			th { border-bottom: 1px solid #aaa; }
+			table { border-collapse: collapse; }
+			td { border-bottom: 1px dotted #aaa; border-left: 1px solid #000; border-right: 1px solid #000;}
+			td.center { text-align: center; }
+			th { border-bottom: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000;}
 			section { display: inline-block; width: 49%; }
 			h2 { margin-bottom: 5px; }
+			tr.sum td { border-top: 2px solid #000; font-weight: bold;}
 
 	%body
 		%h1 Sneak am #{@sneak.time.strftime "%d.%m.%Y"}
@@ -30,10 +33,17 @@
 				- @sneak.participations.all(:active=>true).each do |p|
 					%tr
 						%td= p.user.alias || p.user.username
-						%td= p.sum
-						%td= p.psp ? "X" : "-"
-						%td= p.user.bonus_points>=5 ? "X" : "-"
-						%td= p.frei ? "X" : "-"
+						%td.center= p.sum
+						%td.center= p.psp ? "X" : "-"
+						%td.center= p.user.bonus_points>=5 ? "X" : "-"
+						%td.center= p.frei ? "X" : "-"
+
+				%tr.sum
+					%td Summe
+					%td.center= @sneak.sum
+					%td
+					%td.center= @sneak.participations.all(:active=>true).select{|p| p.sum>0 && p.user.bonus_points>=5}.count
+					%td
         
 		%section
 			%h2 Aktueller (!) Bonuspunktestand
