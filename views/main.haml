@@ -30,9 +30,9 @@
 					%th Bonus
 					%th Freikarte
 
-				- @sneak.participations.all(:active=>true).each do |p|
+				- @sneak.participations.all(:active=>true).sort_by{|p| p.user.to_s}.each do |p|
 					%tr
-						%td= p.user.alias || p.user.username
+						%td= p.user
 						%td.center= p.sum
 						%td.center= p.psp ? "X" : "-"
 						%td.center= p.user.bonus_points>=5 ? "X" : "-"
@@ -53,9 +53,9 @@
 					%th Anzahl Stempel
 					%th Standardwert
 
-				- User.all.each do |u|
+				- User.all.sort_by{|u| u.to_s}.each do |u|
 					%tr
-						%td= u.alias || u.username
+						%td= u
 						%td= u.bonus_points
 						%td= u.auto
 		
@@ -67,8 +67,8 @@
 					%th Bonuskarten
 
 				%tr
-					%td= @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| u.bonus_points<5}.collect{|u| u.alias||u.username}.join("<br />")
-					%td= @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| u.bonus_points>4}.collect{|u| u.alias||u.username}.join("<br />")
+					%td= @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| u.bonus_points<5}.collect{|u| u.to_s}.sort.join("<br />")
+					%td= @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| u.bonus_points>4}.collect{|u| u.to_s}.sort.join("<br />")
 
 		%section
 			%h2 Bonuskarten
@@ -79,7 +79,7 @@
 					%th Halb und halb
 				
 				%tr
-					%td= @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| (u.bonus_points%5)==0}.collect{|u| u.alias||u.username}.join("<br />")
-					%td= @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| u.bonus_points%5>0 && (u.bonus_points%5)+Sneak.newest.bonus_points<=5}.collect{|u| u.alias||u.username}.join("<br />")
-					%td= @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| u.bonus_points%5>0 && (u.bonus_points%5)+Sneak.newest.bonus_points>5}.collect{|u| u.alias||u.username}.join("<br />")
+					%td= @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| (u.bonus_points%5)==0}.collect{|u| u.to_s}.sort.join("<br />")
+					%td= @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| u.bonus_points%5>0 && (u.bonus_points%5)+Sneak.newest.bonus_points<=5}.collect{|u| u.to_s}.sort.join("<br />")
+					%td= @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| u.bonus_points%5>0 && (u.bonus_points%5)+Sneak.newest.bonus_points>5}.collect{|u| u.to_s}.sort.join("<br />")
 

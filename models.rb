@@ -11,6 +11,8 @@ class User
 	property :reminder_ignored, Integer, :default=>0
 	
 	has n, :participations
+	
+	def to_s; self.alias || self.username; end
 end
 
 class Sneak
