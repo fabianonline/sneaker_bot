@@ -10,5 +10,8 @@
     :reminder:
         :time: "monday 12:00"
         :count: 4
+    :notify_if_reservable:
+        - "@user_1"
+        - "@user_2"
 
 :database: "mysql://<username>:<password>@<host>/<database>"
