@@ -93,12 +93,12 @@ class SneakerBot
 	end
 	
 	def tweet_status
-		text = "#{%w(Mo Di Mi Do Fr Sa So)[Date.today.wday]} #{Time.now.strftime("%H:%M")}: #{@current_sneak.sum}\n"
+		text = "#{%w(So Mo Di Mi Do Fr Sa)[Date.today.wday]} #{Time.now.strftime("%H:%M")}: #{@current_sneak.sum}\n"
 		text += @current_sneak.participations.all(:sum.gt=>0, :active=>true).collect do |part|
 			str = "#{part.user.alias || part.user.username}"
 			str << " +#{part.sum-1}" if part.sum>1
 			tags = []
-			tags << "B" if part.user.bonus_points>=5 && @current_sneak.time.day<=7
+			tags << "B" if part.user.bonus_points>=5 && @current_sneak.time.day>7
 			tags << "P" if part.psp
 			tags << "F" if part.frei
 			str << " [#{tags.join(',')}]" if tags.count>0
