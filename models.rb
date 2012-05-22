@@ -50,7 +50,7 @@ class Participation
 	include DataMapper::Resource
 	
 	property :id, Serial
-	property :text, String
+	property :text, String, :length=>200
 	property :sum, Integer
 	property :active, Boolean, :default=>true
 	property :frei, Boolean, :default=>false
