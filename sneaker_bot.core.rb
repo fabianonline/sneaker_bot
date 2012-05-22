@@ -72,15 +72,15 @@ class SneakerBot
 				when "-" then hash[:user].bonus_points -= p[2]
 				else hash[:user].bonus_points = p[2]
 			end
-			hash[:user].save
+			hash[:user].save or raise "Fehler beim Speichern: #{hash[:user].errors.collect(&:to_s).join("; ")}"
 		elsif ((p=/\balias\b(.+)/i.match(text)) && hash[:internal])
 			puts "alias"
 			hash[:user].alias = p[1].strip
-			hash[:user].save
+			hash[:user].save or raise "Fehler beim Speichern: #{hash[:user].errors.collect(&:to_s).join("; ")}"
 		elsif (p=/\bauto\b(.+)/i.match(text))
 			puts "auto"
 			hash[:user].auto = p[1].strip
-			hash[:user].save
+			hash[:user].save or raise "Fehler beim Speichern: #{hash[:user].errors.collect(&:to_s).join("; ")}"
 		elsif /\b(ja|jo|jupp|yes|jop)\b/i.match(text)
 			puts "ja"
 			Participation.all(:user=>hash[:user], :sneak=>@current_sneak).each {|p| p.active=false; p.save}
@@ -91,7 +91,7 @@ class SneakerBot
 			
 			p.psp = (/psp/i.match(text) != nil)
 			p.frei = (/frei/i.match(text) != nil)
-			p.save
+			p.save or raise "Fehler beim Speichern: #{p.errors.collect(&:to_s).join("; ")}"
 			@status_changed = true
 		elsif /\b(nein|nope|no|nö)\b/i.match(text)
 			puts "nein"
