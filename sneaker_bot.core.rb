@@ -26,7 +26,7 @@ class SneakerBot
 	
 	def get_tweets(ignore_since_id=false)
 		since_id = ignore_since_id  ?  1  :  Value.get("since_id", 1)
-		tweets = @twitter.mentions(:since_id=>since_id)#.reverse
+		tweets = @twitter.mentions(:since_id=>since_id).reverse
 		tweets.each do |tweet|
 			since_id = tweet['id'] if tweet['id']>since_id
 		end
