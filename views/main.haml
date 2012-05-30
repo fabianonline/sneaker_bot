@@ -3,12 +3,12 @@
 	%head
 		%title Sneaker-Bot
 		:css
-			body, td { font-family: Verdana, Helvetica, Arial, sans-serif; }
+			body, td { font-family: Verdana, Helvetica, Arial, sans-serif; font-size: 12px;}
 			table { border-collapse: collapse; }
 			td { border-bottom: 1px dotted #aaa; border-left: 1px solid #000; border-right: 1px solid #000;}
 			td.center { text-align: center; }
 			th { border-bottom: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000;}
-			section { display: inline-block; width: 49%; }
+			section { display: inline-block; float: left; margin-right: 10px;}
 			h2 { margin-bottom: 5px; }
 			tr.sum td { border-top: 2px solid #000; font-weight: bold;}
 
@@ -27,48 +27,20 @@
 					%th Name
 					%th Anzahl
 					%th PSP
-					%th Bonus
+					%th Bezahlt
 					%th Freikarte
 
-				- @sneak.participations.all(:active=>true).sort_by{|p| p.user.to_s}.each do |p|
+				- @sneak.participations.all(:active=>true, :sum.gt=>0).sort_by{|p| p.user.to_s}.each do |p|
 					%tr
 						%td= p.user
 						%td.center= p.sum
 						%td.center= p.psp ? "X" : "-"
-						%td.center= p.user.bonus_points>=5 ? "X" : "-"
+						%td.center= p.user.bonus_points>=5 ? "Bonus" : ""
 						%td.center= p.frei ? "X" : "-"
 
 				%tr.sum
 					%td Summe
-					%td.center= @sneak.sum
-					%td
-					%td.center= @sneak.participations.all(:active=>true).select{|p| p.sum>0 && p.user.bonus_points>=5}.count
-					%td
-        
-		%section
-			%h2 Aktueller (!) Bonuspunktestand
-			%table
-				%tr
-					%th Name
-					%th Anzahl Stempel
-					%th Standardwert
-
-				- User.all.sort_by{|u| u.to_s}.each do |u|
-					%tr
-						%td= u
-						%td= u.bonus_points
-						%td= u.auto
-		
-		%section
-			%h2 Bezahlung
-			%table
-				%tr
-					%th Bezahlen
-					%th Bonuskarten
-
-				%tr
-					%td= @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| u.bonus_points<5}.collect{|u| u.to_s}.sort.join("<br />")
-					%td= @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| u.bonus_points>4}.collect{|u| u.to_s}.sort.join("<br />")
+					%td.center{:colspan=>"4"}= "#{@sneak.sum}, davon #{@sneak.participations.all(:active=>true).select{|p| p.sum>0 && p.user.bonus_points>=5}.count} mit Bonuskarten"
 
 		%section
 			%h2 Bonuskarten
@@ -82,4 +54,33 @@
 					%td= @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| (u.bonus_points%5)==0}.collect{|u| u.to_s}.sort.join("<br />")
 					%td= @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| u.bonus_points%5>0 && (u.bonus_points%5)+Sneak.newest.bonus_points<=5}.collect{|u| u.to_s}.sort.join("<br />")
 					%td= @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| u.bonus_points%5>0 && (u.bonus_points%5)+Sneak.newest.bonus_points>5}.collect{|u| u.to_s}.sort.join("<br />")
+		
+		%br{:style=>"clear: left;"}/
 
+		%section
+			%h2 Bonuspunkte
+			%table
+				%tr
+					%th Name
+					%th Punkte
+					%th Standard
+
+				- User.all.sort_by{|u| u.to_s}.each do |u|
+					%tr
+						%td= u
+						%td= u.bonus_points
+						%td= u.auto
+									
+		%section
+			%h2 Historie
+			%table
+				%tr
+					%th Zeitpunkt
+					%th User
+					%th Meldung
+				
+				- @sneak.participations.all(:order=>:time).each do |p|
+					%tr
+						%td= p.time.strftime("%d.%m. %H:%M") rescue "?"
+						%td= p.user.to_s
+						%td= p.text

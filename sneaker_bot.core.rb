@@ -12,7 +12,7 @@ require File.join(File.dirname(__FILE__), 'models.rb')
 DataMapper.finalize
 
 class SneakerBot
-	attr_accessor :status_changed, :current_sneak
+	attr_accessor :status_changed, :current_sneak, :twitter
 	def initialize
 		@twitter = TwitterOAuth::Client.new(
 				:consumer_key => $config[:twitter][:consumer_key],
@@ -24,8 +24,8 @@ class SneakerBot
 		@current_sneak = Sneak.newest
 	end
 	
-	def get_tweets
-		since_id = Value.get("since_id", 1)
+	def get_tweets(ignore_since_id=false)
+		since_id = ignore_since_id  ?  1  :  Value.get("since_id", 1)
 		tweets = @twitter.mentions(:since_id=>since_id)#.reverse
 		tweets.each do |tweet|
 			since_id = tweet['id'] if tweet['id']>since_id
@@ -44,11 +44,12 @@ class SneakerBot
 		# don't save yet. analyze_tweet will do that, if the tweet was okay
 		# This is to prevent spam bots from being added to the Users table.
 		
-		analyze_tweet(:user=>user, :text=>tweet["text"])
+		analyze_tweet(:user=>user, :text=>tweet["text"], :time=>DateTime.parse(tweet['created_at']))
 	end
 		
 	def analyze_tweet(hash={})
 		text = hash[:text]
+		hash[:time] ||= DateTime.now
 		print text + "  -  "
 		unless /^@sneaker_bot\b/i.match(text) || hash[:internal]
 			puts "Nicht direkt an mich. Ignorieren..."
@@ -84,7 +85,7 @@ class SneakerBot
 		elsif /\b(ja|jo|jupp|yes|jop)\b/i.match(text)
 			puts "ja"
 			Participation.all(:user=>hash[:user], :sneak=>@current_sneak).each {|p| p.active=false; p.save}
-			p = Participation.new(:text=>text, :user=>hash[:user], :sneak=>@current_sneak, :sum=>1)
+			p = Participation.new(:text=>text, :user=>hash[:user], :sneak=>@current_sneak, :sum=>1, :time=>hash[:time])
 			if matches = /\+ *(\d+)/.match(text)
 				p.sum += matches[1].to_i
 			end
@@ -96,7 +97,7 @@ class SneakerBot
 		elsif /\b(nein|nope|no|nö)\b/i.match(text)
 			puts "nein"
 			Participation.all(:user=>hash[:user], :sneak=>@current_sneak).each {|p| p.active=false; p.save}
-			Participation.create(:text=>text, :user=>hash[:user], :sneak=>@current_sneak, :sum=>0)
+			Participation.create(:text=>text, :user=>hash[:user], :sneak=>@current_sneak, :sum=>0, :time=>hash[:time])
 			@status_changed = true
 		elsif /\bstatus\b/i.match(text)
 			puts "status"

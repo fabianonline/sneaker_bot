@@ -57,6 +57,7 @@ class Participation
 	property :psp, Boolean, :default=>false
 	belongs_to :user
 	belongs_to :sneak
+	property :time, DateTime
 end
 
 class Value
