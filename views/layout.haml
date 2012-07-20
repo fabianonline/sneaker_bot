@@ -1,0 +1,20 @@
+!!! 5
+%html
+	%head
+		%title Sneaker-Bot
+		:css
+			body, td { font-family: Verdana, Helvetica, Arial, sans-serif; font-size: 11px;}
+			h1 { font-size: 14px; }
+			h2 { font-size: 12px; }
+			table { border-collapse: collapse; }
+			td { border-bottom: 1px dotted #aaa; border-left: 1px solid #000; border-right: 1px solid #000;}
+			td.center { text-align: center; }
+			th { border-bottom: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000;}
+			section { display: inline-block; margin-right: 20px; width: 45%;}
+			h2 { margin-bottom: 5px; }
+			tr.sum td { border-top: 2px solid #000; font-weight: bold;}
+			td.has_box { border-right: none; }
+			td.box { width: 15px; border-left-style: dotted; }
+			.monospace { font-family: monospace; white-space: nowrap; }
+
+	%body= yield
