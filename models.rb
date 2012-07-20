@@ -24,6 +24,7 @@ class Sneak
 	property :sum, Integer, :default=>0
 	
 	has n, :participations
+	has n, :reservations
 	
 	def self.create(time=nil)
 		time = Chronic.parse("next #{$config[:settings][:sneak_time]}") unless time
@@ -37,13 +38,24 @@ class Sneak
 	end
 	
 	def self.newest
-		self.first(:order=>[:time.desc])
+		self.first(:order=>[:time.desc]) || self.create
 	end
 	
 	def update_sum
 		self.sum = self.participations.all(:active=>true).collect(&:sum).inject(:+)
 		self.save
 	end
+	
+	def double?; time.day<=7; end
+end
+
+class Reservation
+	include DataMapper::Resource
+
+	property :id, Serial
+	property :number, String, :length=>4
+	property :count, Integer
+	belongs_to :sneak
 end
 
 class Participation
@@ -58,6 +70,17 @@ class Participation
 	belongs_to :user
 	belongs_to :sneak
 	property :time, DateTime
+	
+	def to_s_short
+		str = "#{user}"
+		str << " +#{sum-1}" if sum>1
+		tags = []
+		tags << "B" if user.bonus_points>=5 && !sneak.double?
+		tags << "P" if psp
+		tags << "F" if frei
+		str << " [#{tags.sort.join(',')}]" if tags.count>0
+		str
+	end
 end
 
 class Value

@@ -3,14 +3,18 @@
 	%head
 		%title Sneaker-Bot
 		:css
-			body, td { font-family: Verdana, Helvetica, Arial, sans-serif; font-size: 12px;}
+			body, td { font-family: Verdana, Helvetica, Arial, sans-serif; font-size: 11px;}
+			h1 { font-size: 14px; }
+			h2 { font-size: 12px; }
 			table { border-collapse: collapse; }
 			td { border-bottom: 1px dotted #aaa; border-left: 1px solid #000; border-right: 1px solid #000;}
 			td.center { text-align: center; }
 			th { border-bottom: 1px solid #000; border-left: 1px solid #000; border-right: 1px solid #000;}
-			section { display: inline-block; float: left; margin-right: 10px;}
+			section { display: inline-block; margin-right: 20px; width: 45%;}
 			h2 { margin-bottom: 5px; }
 			tr.sum td { border-top: 2px solid #000; font-weight: bold;}
+			td.has_box { border-right: none; }
+			td.box { width: 15px; border-left-style: dotted; }
 
 	%body
 		%h1 Sneak am #{@sneak.time.strftime "%d.%m.%Y"}
@@ -18,8 +22,21 @@
 		= @sneak.bonus_points
 
 		%br/
-		%br/
-		
+
+		%section{:style=>"float: left;"}
+			%h2 Historie
+			%table
+				%tr
+					%th Zeitpunkt
+					%th User
+					%th Meldung
+				
+				- @sneak.participations.all(:order=>:time).each do |p|
+					%tr
+						%td= p.time.strftime("%d.%m. %H:%M") rescue "?"
+						%td= p.user.to_s
+						%td= p.text
+
 		%section
 			%h2 Anmeldungen
 			%table
@@ -35,27 +52,33 @@
 						%td= p.user
 						%td.center= p.sum
 						%td.center= p.psp ? "X" : "-"
-						%td.center= p.user.bonus_points>=5 ? "Bonus" : ""
+						%td.center= p.user.bonus_points<5 || @sneak.double? ? "" : "Bonus"
 						%td.center= p.frei ? "X" : "-"
 
 				%tr.sum
 					%td Summe
-					%td.center{:colspan=>"4"}= "#{@sneak.sum}, davon #{@sneak.participations.all(:active=>true).select{|p| p.sum>0 && p.user.bonus_points>=5}.count} mit Bonuskarten"
+					- reservation_sum = @sneak.reservations.collect(&:count).reduce(&:+)
+					%td.center{:colspan=>"4"}= "#{@sneak.sum} (#{reservation_sum} reserviert), davon #{@sneak.participations.all(:active=>true).select{|p| p.sum>0 && p.user.bonus_points>=5 && !@sneak.double?}.count} mit Bonuskarten"
 
+		- bonus_new = @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| (u.bonus_points%5)==0}.collect{|u| u.to_s}.sort
+		- bonus_fill= @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| u.bonus_points%5>0 && (u.bonus_points%5)+@sneak.bonus_points<=5}.collect{|u| u.to_s}.sort
+		- bonus_mix = @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| u.bonus_points%5>0 && (u.bonus_points%5)+@sneak.bonus_points>5}.collect{|u| u.to_s}.sort
 		%section
 			%h2 Bonuskarten
 			%table
 				%tr
-					%th Ganz neu
-					%th Auffüllen
-					%th Halb und halb
-				
-				%tr
-					%td= @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| (u.bonus_points%5)==0}.collect{|u| u.to_s}.sort.join("<br />")
-					%td= @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| u.bonus_points%5>0 && (u.bonus_points%5)+Sneak.newest.bonus_points<=5}.collect{|u| u.to_s}.sort.join("<br />")
-					%td= @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| u.bonus_points%5>0 && (u.bonus_points%5)+Sneak.newest.bonus_points>5}.collect{|u| u.to_s}.sort.join("<br />")
-		
-		%br{:style=>"clear: left;"}/
+					%th{:colspan=>"2"} Ganz neu
+					%th{:colspan=>"2"} Auffüllen
+					%th{:colspan=>"2"} Halb und halb
+
+				- [bonus_new.count, bonus_fill.count, bonus_mix.count].max.times do |i|
+					%tr
+						%td.has_box= bonus_new[i] rescue ""
+						%td.box
+						%td.has_box= bonus_fill[i] rescue ""
+						%td.box
+						%td.has_box= bonus_mix[i] rescue ""
+						%td.box
 
 		%section
 			%h2 Bonuspunkte
@@ -70,17 +93,16 @@
 						%td= u
 						%td= u.bonus_points
 						%td= u.auto
-									
-		%section
-			%h2 Historie
+		
+		%section{:float=>"right"}
+			%h2 Reservierungen
 			%table
 				%tr
-					%th Zeitpunkt
-					%th User
-					%th Meldung
-				
-				- @sneak.participations.all(:order=>:time).each do |p|
+					%th Nummer
+					%th Anzahl
+
+				- @sneak.reservations.each do |r|
 					%tr
-						%td= p.time.strftime("%d.%m. %H:%M") rescue "?"
-						%td= p.user.to_s
-						%td= p.text
+						%td= r.number
+						%td= r.count
+

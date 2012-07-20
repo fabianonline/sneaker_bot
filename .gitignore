@@ -3,4 +3,5 @@ data.yml
 ._*
 .htaccess
 tmp
+.rspec
 log.log*
