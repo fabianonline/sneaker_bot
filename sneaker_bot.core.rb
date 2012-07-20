@@ -4,7 +4,7 @@ require 'open-uri'
 Bundler.require
 
 $config = YAML.load_file(File.join(File.dirname(__FILE__), 'config.yml'))
-DataMapper::Logger.new($stdout, :debug)
+# DataMapper::Logger.new($stdout, :debug)
 DataMapper.setup(:default, $config[:database])
 
 require File.join(File.dirname(__FILE__), 'models.rb')
@@ -239,9 +239,5 @@ class SneakerBot
 		sb.get_tweets.each {|t| sb.process_tweet(t)}
 		sb.current_sneak.update_sum
 		sb.tweet_status if sb.status_changed
-
-		puts
-		puts
-		puts
 	end
 end
