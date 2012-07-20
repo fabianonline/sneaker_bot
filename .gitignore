@@ -1,6 +1,6 @@
 config.yml
 data.yml
-log.log
 ._*
 .htaccess
 tmp
+log.log*
