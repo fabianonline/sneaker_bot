@@ -1,0 +1,97 @@
+%h1 Befehle
+
+%table
+	%tr
+		%th Typ
+		%th Tweet
+		%th Einschränkungen
+		%th Beschreibung
+	
+	%tr
+		%td Zusage
+		%td.monospace @sneaker_bot ja
+		%td -
+		%td
+			Sagt für die kommende Sneak zu.
+			%br/
+			Ersetzt vorige Zu- / Absagen des Nutzers.
+	
+	%tr
+		%td Zusage mit PSP
+		%td.monospace @sneaker_bot ja psp
+		%td -
+		%td
+			Sagt für die kommende Sneak sowie das Prä-Sneak-Programm zu.
+			%br/
+			Ersetzt vorige Zu- / Absagen des Nutzers.
+	
+	%tr
+		%td Zusage mit Freunden
+		%td.monospace @sneaker_bot ja +2
+		%td -
+		%td 
+			Sagt für die kommende Sneak mit zwei (dem Bot unbekannten) Freunden zu.
+			%br/
+			Ersetzt vorige Zu- / Absagen des Nutzers.
+	
+	%tr
+		%td Automatischer Status
+		%td.monospace @sneaker_bot auto $tweet
+		%td -
+		%td
+			Setzt $tweet als Standardwert, der wöchentlich beim Start einer neuen Sneak-Runde abgearbeitet wird.
+			%br/
+			Beispiel:
+			%span.monospace @sneaker_bot auto ja psp
+	
+	%tr
+		%td Status-Abfrage
+		%td.monospace @sneaker_bot status
+		%td -
+		%td
+			Fordert den Bot auf, den aktuellen Status auszugeben.
+	
+	%tr
+		%td Interner Tweet
+		%td.monospace  @sneaker_bot set $user $tweet
+		%td Admins
+		%td
+			Verarbeitet $tweet intern so, als wäre er von $user eingetragen worden.
+			%br/
+			Beispiel:
+			%span.monospace @sneaker_bot set fabianonline ja
+	
+	%tr
+		%td Alias
+		%td.monospace @sneaker_bot set $user alias $name
+		%td Admins
+		%td
+			Ändert den Alias von $user zu $name.
+			%br/
+			Beispiel:
+			%span.monospace @sneaker_bot set fabianonline alias Fabian
+	
+	%tr
+		%td Bonusstempelzahl
+		%td.monospace @sneaker_bot set $user bonus=$zahl
+		%td Admins
+		%td
+			Setzt den Bonusstempelzähler von $user auf $zahl.
+			%br/
+			Beispiel:
+			%span.monospace @sneaker_bot set fabianonline bonus=3
+	
+	%tr
+		%td Reservierungen
+		%td.monospace @sneaker_bot reservierung $nummern
+		%td Admins
+		%td
+			Trägt die Reservierungen nach $nummern ("anzahl"x"nummer") ein.
+			Bereits eingetragene Reservierungen für die aktuelle Sneak werden gelöscht.
+			%br/
+			Beispiel:
+			%span.monospace @sneaker_bot reservierung 7x1356 3x8539
+
+Bei den Admin-Befehlen bitte beachten:
+%span.monospace $user
+bezeichnet immer den aktuellen Twitter-Namen des Users, nicht seinen Alias!
