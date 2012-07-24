@@ -5,6 +5,7 @@ describe SneakerBot do
 		@sb = SneakerBot.new
 		@sb.stub!(:puts)
 		@sb.stub!(:print)
+		@sb.twitter.stub!(:update)
 		@user = User.create(:username=>"hz", :twitter_id=>"1234", :alias=>"Heinz", :id=>42, :reminder_ignored=>0, :bonus_points=>3)
 		@user_2 = User.create(:username=>"user 2", :twitter_id=>nil, :alias=>"User 2", :id=>43, :reminder_ignored=>0, :bonus_points=>0)
 	end
@@ -633,5 +634,52 @@ describe SneakerBot do
 		end
 	end
 
-	pending "#cron"
+	describe ".cron" do
+		before do
+			SneakerBot.stub!(:new) { @sb }
+			@sb.stub!(:sneak_reservable?) { false }
+			@sb.stub!(:get_tweets) { [] }
+			@sb.stub!(:status_changed) { false }
+			Value.set("next_reminder_time", Time.now+100)
+		end
+		
+		it("should create a new instance of SneakerBot") { SneakerBot.should_receive(:new).and_return(@sb) }
+		
+		describe "checks the website for reservable sneaks" do
+			describe "if the next check is sheduled to be in the future" do
+				before { Value.set("next_website_check_at", Time.now+100) }
+				
+				it("doesn't call #sneak_reservable?") { @sb.should_not_receive(:sneak_reservable) }
+			end
+			
+			describe "if the next check is sheduled to be in the past" do
+				before { Value.set("next_website_check_at", Time.now-100) }
+				
+				it("calls #sneak_reservable?") { @sb.should_receive(:sneak_reservable?) }
+				
+				describe "if the sneak *is* reservable" do
+					before { @sb.stub!(:sneak_reservable?) { true } }
+					it("sends a tweet") { @sb.should_receive(:tweet).and_return(true) }
+					it("updates next_website_check_at") { lambda{SneakerBot.cron}.should change{Value.get("next_website_check_at")} }
+				end
+				
+				describe "if the sneak is *not* reservable" do
+					before { @sb.stub!(:sneak_reservable?) { false } }
+					it("doesn't send a tweet") { @sb.should_not_receive(:tweet) }
+					it("doesn't update next_website_check_at") { lambda{SneakerBot.cron}.should_not change{Value.get("next_website_check_at")} }
+				end
+			end
+		end
+		
+		pending "creates a new sneak"
+		pending "automatically sends status tweets"
+		pending "automatically sends reminder tweets"
+		pending "processes tweets"
+		pending "updates the sum"
+		pending "tweets the current status, if necessary"
+		
+		after do
+			SneakerBot.cron
+		end
+	end
 end
