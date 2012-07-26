@@ -23,23 +23,28 @@
 	%table
 		%tr
 			%th Name
-			%th Anzahl
 			%th PSP
 			%th Bezahlt
 			%th Freikarte
 
-		- @sneak.participations.all(:active=>true, :sum.gt=>0).sort_by{|p| p.user.to_s}.each do |p|
+		- last_user = nil
+		- count = 0
+		- @sneak.participations.all(:active=>true, :sum.gt=>0).collect{|p| [p]*p.sum}.flatten.sort_by{|p| p.user.to_s}.each do |p|
+			- count = last_user==p.user ? count+1 : 0
+			- last_user = p.user
 			%tr
-				%td= p.user
-				%td.center= p.sum
+				- if count==0
+					%td= p.user
+				- else
+					%td{:style=>"padding-left: 10px;"}= "+#{count}"
 				%td.center= p.psp ? "X" : "-"
-				%td.center= p.user.bonus_points<5 || @sneak.double? ? "" : "Bonus"
-				%td.center= p.frei ? "X" : "-"
+				%td.center= p.user.bonus_points<5 || @sneak.double? || count>0 ? "" : "Bonus"
+				%td.center= p.frei && count==0 ? "X" : "-"
 
 		%tr.sum
 			%td Summe
 			- reservation_sum = @sneak.reservations.collect(&:count).reduce(&:+)
-			%td.center{:colspan=>"4"}= "#{@sneak.sum} (#{reservation_sum} reserviert), davon #{@sneak.participations.all(:active=>true).select{|p| p.sum>0 && p.user.bonus_points>=5 && !@sneak.double?}.count} mit Bonuskarten"
+			%td.center{:colspan=>"3"}= "#{@sneak.sum} (#{reservation_sum} reserviert), davon #{@sneak.participations.all(:active=>true).select{|p| p.sum>0 && p.user.bonus_points>=5 && !@sneak.double?}.count} mit Bonuskarten"
 
 - bonus_new = @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| (u.bonus_points%5)==0}.collect{|u| u.to_s}.sort
 - bonus_fill= @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| u.bonus_points%5>0 && (u.bonus_points%5)+@sneak.bonus_points<=5}.collect{|u| u.to_s}.sort
