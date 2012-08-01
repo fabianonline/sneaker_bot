@@ -21,19 +21,31 @@ describe "Sneak" do
 		end
 	end
 
-	pending ".create"
+	describe ".create" do
+		it "sets bonus_points correctly" do
+			Sneak.create(DateTime.new(2012, 5, 1)).bonus_points.should == 2
+			Sneak.create(DateTime.new(2012, 5, 8)).bonus_points.should == 1
+		end
+		
+		it "sets variant correctly" do
+			Sneak.create(DateTime.new(2012, 5, 1)).variant.should == "double"
+			Sneak.create(DateTime.new(2012, 5, 8)).variant.should == "single"
+		end
+	end
 
 	pending "#update_sum"
 	
 	describe "#double?" do
-		it "returns true for sneaks at the beginning of the month" do
-			Sneak.create(DateTime.new(2012, 5, 1)).double?.should be_true
-			Sneak.create(DateTime.new(2012, 5, 7)).double?.should be_true
+		it "returns true for sneaks with type 'single'" do
+			s = Sneak.newest
+			s.should_receive(:variant).and_return("double")
+			s.double?.should be_true
 		end
 		
-		it "returns false for sneaks not at the beginning of the month" do
-			Sneak.create(DateTime.new(2012, 5, 8)).double?.should be_false
-			Sneak.create(DateTime.new(2012, 5, 17)).double?.should be_false
+		it "returns false for sneaks with type 'double'" do
+			s = Sneak.newest
+			s.should_receive(:variant).and_return("single")
+			s.double?.should be_false
 		end
 	end
 end

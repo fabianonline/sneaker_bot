@@ -59,6 +59,8 @@ class SneakerBot
 		print text + "  -  "
 		if (p=/set @?([^ ]+) (.+)$/i.match(text))
 			respond_to_set(user, p[1], p[2])
+		elsif(p=/sneak (.+)$/i.match(text))
+			respond_to_sneak(user, p[1])
 		elsif ((p=/\bbonus([+\-=])([0-9]+)/i.match(text)) && internal)
 			respond_to_bonus(user, p[1], p[2])
 		elsif ((p=/\balias\b(.+)/i.match(text)) && internal)
@@ -143,6 +145,21 @@ class SneakerBot
 	def respond_to_status
 		puts "status"
 		@status_changed = true
+	end
+	
+	def respond_to_sneak(user, text)
+		unless user.admin
+			puts "admin-versuch, erfolglos."
+			return
+		end
+		puts "sneak"
+		if matches=/bonus_points=([0-9]+)/.match(text)
+			@current_sneak.bonus_points = matches[1]
+		end
+		if matches=/variant=(single|double)/.match(text)
+			@current_sneak.variant = matches[1]
+		end
+		@current_sneak.save
 	end
 	
 	def tweet_status

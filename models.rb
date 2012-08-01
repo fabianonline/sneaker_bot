@@ -22,6 +22,7 @@ class Sneak
 	property :time, DateTime
 	property :bonus_points, Integer
 	property :sum, Integer, :default=>0
+	property :variant, String
 	
 	has n, :participations
 	has n, :reservations
@@ -29,9 +30,12 @@ class Sneak
 	def self.create(time=nil)
 		time = Chronic.parse("next #{$config[:settings][:sneak_time]}") unless time
 		s = Sneak.new(:time=>time)
-		s.bonus_points = case time.day
-			when 1..7 then 2
-			else 1
+		if time.day<=7
+			s.variant = "double"
+			s.bonus_points = 2
+		else
+			s.variant = "single"
+			s.bonus_points = 1
 		end
 		s.save
 		s
@@ -46,7 +50,7 @@ class Sneak
 		self.save
 	end
 	
-	def double?; time.day<=7; end
+	def double?; variant=="double"; end
 end
 
 class Reservation

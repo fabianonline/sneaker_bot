@@ -7,7 +7,7 @@ describe SneakerBot do
 		@sb.stub!(:print)
 		@sb.twitter.stub!(:update)
 		@user = User.create(:username=>"hz", :twitter_id=>"1234", :alias=>"Heinz", :id=>42, :reminder_ignored=>0, :bonus_points=>3)
-		@user_2 = User.create(:username=>"user 2", :twitter_id=>nil, :alias=>"User 2", :id=>43, :reminder_ignored=>0, :bonus_points=>0)
+		@user_2 = User.create(:username=>"user 2", :twitter_id=>nil, :alias=>"User 2", :id=>43, :reminder_ignored=>0, :bonus_points=>0, :admin=>true)
 	end
 
 	describe "#initialize" do
@@ -271,6 +271,13 @@ describe SneakerBot do
 				@sb.analyze_tweet(@user, "status")
 			end
 		end
+		
+		describe "processing 'sneak'-Tweets" do
+			it "calls #respond_to_sneak" do
+				@sb.should_receive(:respond_to_sneak)
+				@sb.analyze_tweet(@user, "sneak bonus_points=1 variant=double")
+			end
+		end
 	end
 
 	describe "#respond_to_set" do
@@ -500,6 +507,45 @@ describe SneakerBot do
 	describe "#respond_to_status" do
 		it "changes @status_changed" do
 			expect {@sb.respond_to_status}.to change(@sb, :status_changed).from(false).to(true)
+		end
+	end
+	
+	describe "#respond_to_sneak" do
+		
+		
+		it "doesn't change anything for non-admin-users" do
+			expect {@sb.respond_to_sneak(@user, "bonus_points=17 variant=double")}.to_not change{@sb.current_sneak.bonus_points}
+			expect {@sb.respond_to_sneak(@user, "bonus_points=17 variant=double")}.to_not change{@sb.current_sneak.variant}
+		end
+		
+		context "from a single sneak" do
+			before do
+				@sb.current_sneak.variant="single"
+				@sb.current_sneak.bonus_points=1
+			end
+			
+			it "changes the variant" do
+				expect {@sb.respond_to_sneak(@user_2, "variant=double")}.to change{@sb.current_sneak.variant}.from("single").to("double")
+			end
+		
+			it "changes the bonus_points" do
+				expect {@sb.respond_to_sneak(@user_2, "bonus_points=2")}.to change{@sb.current_sneak.bonus_points}.from(1).to(2)
+			end
+		end
+		
+		context "from a double sneak" do
+			before do
+				@sb.current_sneak.variant="double"
+				@sb.current_sneak.bonus_points=2
+			end
+			
+			it "changes the variant" do
+				expect {@sb.respond_to_sneak(@user_2, "variant=single")}.to change{@sb.current_sneak.variant}.from("double").to("single")
+			end
+		
+			it "changes the bonus_points" do
+				expect {@sb.respond_to_sneak(@user_2, "bonus_points=1")}.to change{@sb.current_sneak.bonus_points}.from(2).to(1)
+			end
 		end
 	end
 	

@@ -100,6 +100,19 @@
 			%br/
 			Beispiel:
 			%span.monospace @sneaker_bot reservierung 7x1356 3x8539
+	%tr
+		%td Sneak-Modus
+		%td.monospace @sneaker_bot sneak $attribute
+		%td Admins
+		%td
+			Ändert die Attribute der Sneak. Derzeit unterstützt:
+			%ul
+				%li bonus_points - Anzahl der Bonuspunkte, die bei einer Teilnahme an dieser Sneak vergeben werden.
+				%li variant - Variante. Derzeit sind "single" und "double" vergeben. Bei "double" werden keine Bonuskarten akzeptiert.
+			Es müssen nicht alle Attribute auf einmal gesetzt werden.
+			%br/
+			Beispiel:
+			%span.monospace @sneaker_bot sneak bonus_points=1 variant=single
 
 Bei den Admin-Befehlen bitte beachten:
 %span.monospace $user
