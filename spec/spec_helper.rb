@@ -1,4 +1,5 @@
 require File.join(File.dirname(__FILE__), '..', 'sneaker_bot.core.rb')
+require 'rspec/autorun'
 
 Bundler.require(:test)
 

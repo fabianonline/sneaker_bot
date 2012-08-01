@@ -5,3 +5,4 @@ data.yml
 tmp
 .rspec
 log.log*
+coverage
