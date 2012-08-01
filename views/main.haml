@@ -1,4 +1,12 @@
 %h1 Sneak am #{@sneak.time.strftime "%d.%m.%Y"}
+%p
+	- if @prev_sneak
+		%a{:href=>url("/#{@prev_sneak.id}")} &laquo; Vorige Sneak
+	- if @prev_sneak && @next_sneak
+		|
+	- if @next_sneak
+		%a{:href=>url("/#{@next_sneak.id}")} Nächste Sneak &raquo;
+
 %strong Bonus-Punkte für diese Sneak:
 = @sneak.bonus_points
 
