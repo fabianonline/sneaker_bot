@@ -36,7 +36,6 @@
 			%th Name
 			%th PSP
 			%th Bezahlt
-			%th Freikarte
 
 		- last_user = nil
 		- count = 0
@@ -49,8 +48,13 @@
 				- else
 					%td{:style=>"padding-left: 10px;"}= "+#{count}"
 				%td.center= p.psp ? "X" : "-"
-				%td.center= p.user.bonus_points<5 || @sneak.double? || count>0 ? "" : "Bonus"
-				%td.center= p.frei && count==0 ? "X" : "-"
+				%td.center 
+					- if p.frei && count==0
+						= "Freikarte"
+					- elsif p.user.bonus_points>=5 && !@sneak.double? && count==0
+						= "Bonus"
+					- else
+						= ""
 
 		%tr.sum
 			%td Summe
