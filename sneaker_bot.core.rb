@@ -230,7 +230,7 @@ class SneakerBot
 
 		unless Value.get("next_website_check_at", Time.new)>Time.now || $config[:settings][:notify_if_reservable].count==0
 			if sb.sneak_reservable?
-				sb.tweet("#{$config[:settings][:notify_if_reservable].join(" ")} Die Sneak ist ab *jetzt* anscheinend reservierbar.")
+				sb.tweet("#{$config[:settings][:notify_if_reservable].join(" ")} Die Sneak ist ab *jetzt* anscheinend reservierbar. Aktuelle Anmeldungen: #{sb.current_sneak.sum}")
 				Value.set("next_website_check_at", Sneak.newest.time+1)
 			end
 		end
