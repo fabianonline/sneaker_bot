@@ -217,7 +217,11 @@ class SneakerBot
 		User.all(:twitter_id.not=>nil, :reminder_ignored.lte=>$config[:settings][:reminder][:count]).select{|u| u.participations.all(:sneak=>@current_sneak).count==0}.each do |user|
 			user.reminder_ignored+=1
 			user.save
-			tweet("@#{user.username} Erinnerung: Du wolltest mir noch mitteilen, ob du diese Woche zur Sneak mitkommst oder nicht. ;-)")
+			text = "@#{user.username} #SneakTeilnahmeErinnerungsTweet. ;-)"
+			if @current_sneak.double?
+				text << " Anscheinend ist DoubleSneak. Anmeldeschluss ist i.d.R. Mittwoch mittag!"
+			end
+			tweet(text)
 		end
 	end
 	
