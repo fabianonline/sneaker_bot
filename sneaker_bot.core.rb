@@ -108,6 +108,7 @@ class SneakerBot
 		puts "auto"
 		user.auto = text.strip
 		user.save or raise "Fehler beim Speichern: #{user.errors.collect(&:to_s).join("; ")}"
+		analyze_tweet(user, text)
 	end
 
 	def respond_to_reservation(user, text)

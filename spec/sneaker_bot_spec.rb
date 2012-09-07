@@ -377,6 +377,11 @@ describe SneakerBot do
 		it "strips the new value" do
 			lambda { @sb.respond_to_auto(@user, "  ja psp  ") }.should change(@user, :auto).to("ja psp")
 		end
+		
+		it "passes the new value to also be used as current value" do
+			@sb.should_receive(:analyze_tweet).with(@user, "ja psp")
+			@sb.respond_to_auto(@user, "ja psp")
+		end
 	end
 	
 	describe "#respond_to_yes" do
