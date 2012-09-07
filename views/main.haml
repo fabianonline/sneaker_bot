@@ -1,4 +1,7 @@
 %h1 Sneak am #{@sneak.time.strftime "%d.%m.%Y"}
+%strong
+	%a{:href=>url("/help")} Hilfe
+
 %p
 	- if @prev_sneak
 		%a{:href=>url("/#{@prev_sneak.id}")} &laquo; Vorige Sneak
