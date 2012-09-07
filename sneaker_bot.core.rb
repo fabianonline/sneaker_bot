@@ -38,7 +38,7 @@ class SneakerBot
 	def process_tweet(tweet)
 		puts
 		puts
-		unless /^@sneaker_bot\b/i.match(tweet["text"])
+		unless p=/^@sneaker_bot\b+(.+)$/i.match(tweet["text"])
 			puts "#{tweet["text"]} - Nicht direkt an mich. Ignoriere."
 			return
 		end
@@ -50,7 +50,7 @@ class SneakerBot
 		user.username = tweet["user"]["screen_name"]
 		user.reminder_ignored = 0
 		user.save
-		analyze_tweet(user, tweet["text"], :time=>DateTime.parse(tweet['created_at']).new_offset(DateTime.now.offset()))
+		analyze_tweet(user, p[1].strip, :time=>DateTime.parse(tweet['created_at']).new_offset(DateTime.now.offset()))
 	end
 
 	def analyze_tweet(user, text, hash={})

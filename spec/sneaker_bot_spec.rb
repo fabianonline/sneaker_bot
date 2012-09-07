@@ -84,7 +84,7 @@ describe SneakerBot do
 				@sb.should_receive(:analyze_tweet) { |user, text, hash|
 					user.should be_an(User)
 					user.id.should == @user.id
-					text.should == "@sneaker_bot ja"
+					text.should == "ja"
 					hash[:time].should be_a(DateTime)
 				}
 				@sb.process_tweet(@tweet)
