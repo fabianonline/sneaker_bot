@@ -59,7 +59,7 @@
 		%tr.sum
 			%td Summe
 			- reservation_sum = @sneak.reservations.collect(&:count).reduce(&:+)
-			%td.center{:colspan=>"3"}= "#{@sneak.sum} (#{reservation_sum} reserviert), davon #{@sneak.participations.all(:active=>true).select{|p| p.sum>0 && p.user.bonus_points>=5 && !@sneak.double?}.count} mit Bonuskarten"
+			%td.center{:colspan=>"2"}= "#{@sneak.sum} (#{reservation_sum} reserviert), davon #{@sneak.participations.all(:active=>true).select{|p| p.sum>0 && p.user.bonus_points>=5 && !@sneak.double?}.count} mit Bonuskarten"
 
 - bonus_new = @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| (u.bonus_points%5)==0}.collect{|u| u.to_s}.sort
 - bonus_fill= @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| u.bonus_points%5>0 && (u.bonus_points%5)+@sneak.bonus_points<=5}.collect{|u| u.to_s}.sort
@@ -94,6 +94,10 @@
 				%td= u
 				%td= u.bonus_points
 				%td= u.auto
+		
+		%tr.sum
+			%td Summe
+			%td{:colspan=>"2"}= User.all.collect(&:bonus_points).reduce(&:+)
 
 %section{:float=>"right"}
 	%h2 Reservierungen
