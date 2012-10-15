@@ -65,6 +65,8 @@ class SneakerBot
 			respond_to_bonus(user, p[1], p[2])
 		elsif ((p=/\balias\b(.+)/i.match(text)) && internal)
 			respond_to_alias(user, p[1])
+		elsif ((p=/\becho\b(.+)/i.match(text)) && internal)
+			respond_to_echo(user, p[1])
 		elsif (p=/\bauto\b(.+)/i.match(text))
 			respond_to_auto(user, p[1])
 		elsif /\breservierung\b/i.match(text)
@@ -96,6 +98,10 @@ class SneakerBot
 			else user.bonus_points = number
 		end
 		user.save or raise "Fehler beim Speichern: #{user.errors.collect(&:to_s).join("; ")}"
+	end
+
+	def respond_to_echo(user, text)
+		tweet("#{user.to_s}: #{text}")
 	end
 	
 	def respond_to_alias(user, new_alias)
