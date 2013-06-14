@@ -65,12 +65,12 @@ class SneakerBot
 			respond_to_bonus(user, p[1], p[2])
 		elsif ((p=/\balias\b(.+)/i.match(text)) && internal)
 			respond_to_alias(user, p[1])
-		elsif ((p=/\becho\b(.+)/i.match(text)) && internal)
+		elsif (p=/\becho\b(.+)/i.match(text))
 			respond_to_echo(user, p[1])
-		elsif (p=/\bauto\b(.+)/i.match(text))
-			respond_to_auto(user, p[1])
 		elsif /\breservierung\b/i.match(text)
 			respond_to_reservation(user, text)
+		elsif (p=/\bauto\b(.+)/i.match(text))
+			respond_to_auto(user, p[1])
 		elsif /\b(ja|jo|jupp|yes|jop)\b/i.match(text)
 			respond_to_yes(user, text, time)
 		elsif /\b(nein|nope|no)\b/i.match(text)
@@ -267,5 +267,17 @@ class SneakerBot
 		sb.get_tweets.each {|t| sb.process_tweet(t)}
 		sb.current_sneak.update_sum
 		sb.tweet_status if sb.status_changed
+	end
+
+	def self.console
+		user = User.first(:admin=>true)
+		sb = SneakerBot.new
+
+		print "> "
+		
+		while line = STDIN.gets.chomp rescue nil
+			sb.analyze_tweet(user, line, :internal=>true)
+			print "> "
+		end
 	end
 end
