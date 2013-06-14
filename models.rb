@@ -103,3 +103,14 @@ class Value
 		elm.save
 	end
 end
+
+class Bonuscard
+	include DataMapper::Resource
+
+	property :id, Serial
+	property :points, Integer, :default=>0
+	
+	belongs_to :used_by_user, :model=>'User', :required=>false
+	belongs_to :used_at_sneak, :model=>'Sneak', :required=>false
+	belongs_to :created_at_sneak, :model=>'Sneak', :required=>false
+end
