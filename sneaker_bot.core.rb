@@ -200,7 +200,7 @@ class SneakerBot
 	
 	def give_points
 		@current_sneak.participations.all(:sum.gt=>0, :active=>true).each do |p|
-			p.user.bonus_points = p.user.bonus_points % 5 unless @current_sneak.double? || p.frei
+			p.user.bonus_points = p.user.bonus_points - 5 unless @current_sneak.double? || p.frei || p.user.bonus_points<5
 			p.user.bonus_points += p.sneak.bonus_points
 			p.user.save
 		end rescue nil
