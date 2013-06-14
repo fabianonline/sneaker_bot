@@ -199,11 +199,34 @@ class SneakerBot
 	end
 	
 	def give_points
-		@current_sneak.participations.all(:sum.gt=>0, :active=>true).each do |p|
-			p.user.bonus_points = p.user.bonus_points - 5 unless @current_sneak.double? || p.frei || p.user.bonus_points<5
-			p.user.bonus_points += p.sneak.bonus_points
-			p.user.save
-		end rescue nil
+		#@current_sneak.participations.all(:sum.gt=>0, :active=>true).each do |p|
+		#	p.user.bonus_points = p.user.bonus_points - 5 unless @current_sneak.double? || p.frei || p.user.bonus_points<5
+		#	p.user.bonus_points += p.sneak.bonus_points
+		#	p.user.save
+		#end rescue nil
+
+		cards = @current_sneak.bonuscards
+		cards.each do |card|
+			if card.points==5 && !@current_sneak.double? && card.used_by_user
+				card.used_by_user.bonus_points -= 5
+				card.used_at_sneak = @current_sneak
+				card.save
+			end
+			
+			if card.used_by_user
+				card.used_by_user.bonus_points += @current_sneak.bonus_points
+				card.used_by_user.save
+			end
+		end
+
+		guests = @current_sneak.participations.all(:sum.gt=>0, :active=>true).collect(&:sum).inject(&:+)
+		cards = Bonuscard.all(:points.lte=>(5-@current_sneak.bonus_points), :used_by_user=>nil, :order=>[:points.desc, :id])
+		guests.times do
+			card = cards.shift || Bonuscard.new(:created_at_sneak=>@current_sneak) unless card
+			card.points += @current_sneak.bonus_points
+			card.save
+		end
+
 	end
 	
 	def process_auto
