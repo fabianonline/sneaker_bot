@@ -101,6 +101,10 @@ class SneakerBot
 	end
 
 	def respond_to_echo(user, text)
+		unless user.admin
+			puts "Admin-Versuch, erfolglos."
+			return
+		end
 		tweet("#{user.to_s}: #{text}")
 	end
 	
