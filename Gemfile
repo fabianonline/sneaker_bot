@@ -1,7 +1,7 @@
 source :rubygems
 
 gem 'chronic', '0.6.4'
-gem 'twitter_oauth', '0.4.3'
+gem 'twitter_oauth', '0.4.91'
 gem 'data_mapper'
 gem 'dm-mysql-adapter'
 gem 'dm-types'
