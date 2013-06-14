@@ -61,24 +61,26 @@
 			- reservation_sum = @sneak.reservations.collect(&:count).reduce(&:+)
 			%td.center{:colspan=>"2"}= "#{@sneak.sum} (#{reservation_sum} reserviert), davon #{@sneak.participations.all(:active=>true).select{|p| p.sum>0 && p.user.bonus_points>=5 && !@sneak.double?}.count} mit Bonuskarten"
 
-- bonus_new = @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| (u.bonus_points%5)==0}.collect{|u| u.to_s}.sort
-- bonus_fill= @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| u.bonus_points%5>0 && (u.bonus_points%5)+@sneak.bonus_points<=5}.collect{|u| u.to_s}.sort
-- bonus_mix = @sneak.participations.all(:active=>true, :sum.gt=>0).collect(&:user).select{|u| u.bonus_points%5>0 && (u.bonus_points%5)+@sneak.bonus_points>5}.collect{|u| u.to_s}.sort
+- sum = @sneak.participations.all(:active=>true).collect(&:sum).inject(&:+)
+- bonus_use = @sneak.double? ? [] : @sneak.bonuscards.select{|c| c.points == 5}
+- bonus_fill = Bonuscard.all(:used_by_user=>nil, :points.lte=>5-@sneak.bonus_points, :points.gt=>0, :order=>[:points.desc, :id], :limit=>sum-bonus_use.count)
+- max_id = Bonuscard.last[:id]
+- bonus_new = (0..(sum-bonus_use.count-bonus_fill.count-1)).to_a.collect{|i|Bonuscard.new(:id=>max_id+1+i)} rescue []
 %section
 	%h2 Bonuskarten
 	%table
 		%tr
-			%th{:colspan=>"2"} Ganz neu
+			%th{:colspan=>"2"} Verbrauchen
 			%th{:colspan=>"2"} Auffüllen
-			%th{:colspan=>"2"} Halb und halb
+			%th{:colspan=>"2"} Ganz neu
 
-		- [bonus_new.count, bonus_fill.count, bonus_mix.count].max.times do |i|
+		- [bonus_new.count, bonus_fill.count, bonus_use.count].max.times do |i|
 			%tr
-				%td.has_box= bonus_new[i] rescue ""
+				%td.has_box= bonus_use[i][:id] rescue ""
 				%td.box
-				%td.has_box= bonus_fill[i] rescue ""
+				%td.has_box= bonus_fill[i][:id] rescue ""
 				%td.box
-				%td.has_box= bonus_mix[i] rescue ""
+				%td.has_box= bonus_new[i][:id] rescue ""
 				%td.box
 
 %section
@@ -110,4 +112,16 @@
 			%tr
 				%td= r.number
 				%td= r.count
+
+%section{:float=>"right"}
+	%h2 Bonuskarten
+	%table
+		%tr
+			%th Nummer
+			%th Punkte
+
+		- Bonuscard.all(:used_at_sneak=>nil, :order=>[:points.desc, :id]).each do |bonus|
+			%tr
+				%td= bonus[:id]
+				%td= bonus.points
 
