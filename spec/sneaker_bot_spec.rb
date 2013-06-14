@@ -8,6 +8,10 @@ describe SneakerBot do
 		@sb.twitter.stub!(:update)
 		@user = User.create(:username=>"hz", :twitter_id=>"1234", :alias=>"Heinz", :id=>42, :reminder_ignored=>0, :bonus_points=>3)
 		@user_2 = User.create(:username=>"user 2", :twitter_id=>nil, :alias=>"User 2", :id=>43, :reminder_ignored=>0, :bonus_points=>0, :admin=>true)
+
+		@bc_9 = Bonuscard.create(:id=>9, :points=>5)
+		@bc_10 = Bonuscard.create(:id=>10, :points=>5)
+		@bc_11 = Bonuscard.create(:id=>11, :points=>4)
 	end
 
 	describe "#initialize" do
@@ -278,6 +282,13 @@ describe SneakerBot do
 				@sb.analyze_tweet(@user, "sneak bonus_points=1 variant=double")
 			end
 		end
+
+		describe "processing 'bc'-Tweets" do
+			it "calls #respond_to_bc" do
+				@sb.should_receive(:respond_to_bc)
+				@sb.analyze_tweet(@user, "bc 1=3 2=4")
+			end
+		end
 	end
 
 	describe "#respond_to_set" do
@@ -514,6 +525,28 @@ describe SneakerBot do
 			expect {@sb.respond_to_status}.to change(@sb, :status_changed).from(false).to(true)
 		end
 	end
+
+	describe "#respond_to_bc" do
+		it "doesn't change anything for non-admin-users" do
+			expect {@sb.respond_to_bc(@user, "9=4")}.to_not change(@bc_9, :points)
+			expect {@sb.respond_to_bc(@user, "9=4")}.to_not change(@bc_9, :points)
+		end
+
+		it "accepts a single update" do
+			expect {@sb.respond_to_bc(@user_2, "9=4")}.to change(@bc_9, :points).to(4)
+			expect {@sb.respond_to_bc(@user_2, "9=4")}.to_not change(@bc_10, :points)
+			expect {@sb.respond_to_bc(@user_2, "9=4")}.to_not change(@bc_11, :points)
+		end
+
+		it "accepts multiple updates" do
+			expect {@sb.respond_to_bc(@user_2, "9=4 10=3")}.to change(@bc_9, :points).to(4)
+			expect {@sb.respond_to_bc(@user_2, "9=4 10=3")}.to change(@bc_10, :points).to(3)
+			expect {@sb.respond_to_bc(@user_2, "9=4 10=3")}.to_not change(@bc_11, :points)
+		end
+	end
+
+
+
 	
 	describe "#respond_to_sneak" do
 		

@@ -4,7 +4,7 @@ require 'open-uri'
 Bundler.require
 
 $config = YAML.load_file(File.join(File.dirname(__FILE__), 'config.yml'))
-# DataMapper::Logger.new($stdout, :debug)
+DataMapper::Logger.new($stdout, :debug)
 DataMapper.setup(:default, $config[:database])
 
 require File.join(File.dirname(__FILE__), 'models.rb')
