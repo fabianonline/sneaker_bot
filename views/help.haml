@@ -123,6 +123,17 @@
 			%br/
 			Beispiel:
 			%span.monospace @sneaker_bot echo Denkt dran, diese Woche ist PSPizza. Treffen schon um 18:00 Uhr.
+	
+	%tr
+		%td Bonuskarten
+		%td.monospace @sneaker_bot bc 33=5 34=4 33=unused
+		%td Admins
+		%td
+			Verwaltet Bonuskarten.
+			%ul
+				%li x=y - Der Bonuskarte x werden y Punkte gesetzt.
+				%li x=unused - Die Bonuskarte x wird als unbenutzt markiert.
+			Man kann die Attribute mehrfach auf einmal setzen - siehe Beispiel.
 
 Bei den Admin-Befehlen bitte beachten:
 %span.monospace $user
