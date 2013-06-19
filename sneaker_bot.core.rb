@@ -4,7 +4,7 @@ require 'open-uri'
 Bundler.require
 
 $config = YAML.load_file(File.join(File.dirname(__FILE__), 'config.yml'))
-# DataMapper::Logger.new($stdout, :debug)
+DataMapper::Logger.new($stdout, :debug)
 DataMapper.setup(:default, $config[:database])
 
 require File.join(File.dirname(__FILE__), 'models.rb')
@@ -75,6 +75,8 @@ class SneakerBot
 			respond_to_yes(user, text, time)
 		elsif /\b(nein|nope|no)\b/i.match(text)
 			respond_to_no(user, text, time)
+		elsif (p=/\bbc\b(.+)/i.match(text))
+			respond_to_bc(user, p[1])
 		elsif /\bstatus\b/i.match(text)
 			respond_to_status
 		end
@@ -172,6 +174,28 @@ class SneakerBot
 		end
 		@current_sneak.save
 	end
+
+	def respond_to_bc(user, text)
+		unless user.admin
+			puts "Admin-Versuch, erfolglos."
+			return
+		end
+		puts "bc"
+		text.scan(/\b(\d+)=(\d|unused)\b/).each do |match|
+			card = Bonuscard.get(match[0])
+			card = Bonuscard.new(:id=>match[0], :created_at_sneak=>@current_sneak[:id]-1) unless card
+			if match[1].downcase=="unused"
+				card.used_at_sneak = nil
+				card.used_by_user.bonus_points += 5
+				card.used_by_user.save
+				card.used_by_user = nil
+			else
+				next if card.used_at_sneak!=nil
+				card.points = match[1]
+			end
+			card.save
+		end
+	end
 	
 	def tweet_status
 		prefix = "#{%w(So Mo Di Mi Do Fr Sa)[Date.today.wday]} #{Time.now.strftime("%H:%M")}: #{@current_sneak.sum}"
@@ -199,11 +223,28 @@ class SneakerBot
 	end
 	
 	def give_points
-		@current_sneak.participations.all(:sum.gt=>0, :active=>true).each do |p|
-			p.user.bonus_points = p.user.bonus_points - 5 unless @current_sneak.double? || p.frei || p.user.bonus_points<5
-			p.user.bonus_points += p.sneak.bonus_points
-			p.user.save
-		end rescue nil
+		cards = @current_sneak.bonuscards
+		cards.each do |card|
+			if card.points==5 && !@current_sneak.double? && card.used_by_user
+				card.used_by_user.bonus_points -= 5
+				card.used_at_sneak = @current_sneak
+				card.save
+			end
+			
+			if card.used_by_user
+				card.used_by_user.bonus_points += @current_sneak.bonus_points
+				card.used_by_user.save
+			end
+		end
+
+		guests = @current_sneak.participations.all(:sum.gt=>0, :active=>true).collect(&:sum).inject(&:+)
+		cards = Bonuscard.all(:points.lte=>(5-@current_sneak.bonus_points), :used_by_user=>nil, :order=>[:points.desc, :id])
+		guests.times do
+			card = cards.shift || Bonuscard.new(:created_at_sneak=>@current_sneak) unless card
+			card.points += @current_sneak.bonus_points
+			card.save
+		end
+
 	end
 	
 	def process_auto

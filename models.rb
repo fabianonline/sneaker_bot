@@ -51,6 +51,24 @@ class Sneak
 	end
 	
 	def double?; variant=="double"; end
+
+	def bonuscards
+		participations = self.participations.all(:active=>true, :sum.gt=>0, :order=>:time).sort_by{|p|p.user.bonus_points}.reverse
+		cards = Bonuscard.all(:used_by_user=>nil, :order=>[:points.desc, :id]).to_a
+		index = 0
+		participations.each_with_index do |part, index|
+			cards << Bonuscard.new(:created_at_sneak=>self) unless cards[index]
+			cards[index].used_by_user = part.user
+		end
+		cards.delete_if{|c| c.points>=5 && c.used_by_user==nil}
+		guests = participations.collect{|p| p.sum-1}.inject(&:+)
+		guests.times do
+			index+=1
+			cards << Bonuscard.new(:created_at_sneak=>self) unless cards[index]
+		end
+
+		return cards.take(index+1)
+	end
 end
 
 class Reservation
@@ -102,4 +120,15 @@ class Value
 		elm.value = YAML.dump(new_value)
 		elm.save
 	end
+end
+
+class Bonuscard
+	include DataMapper::Resource
+
+	property :id, Serial
+	property :points, Integer, :default=>0
+	
+	belongs_to :used_by_user, :model=>'User', :required=>false
+	belongs_to :used_at_sneak, :model=>'Sneak', :required=>false
+	belongs_to :created_at_sneak, :model=>'Sneak', :required=>false
 end
