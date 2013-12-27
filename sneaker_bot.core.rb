@@ -27,7 +27,10 @@ class SneakerBot
 	def get_tweets(ignore_since_id=false)
 		since_id = ignore_since_id  ?  1  :  Value.get("since_id", 1)
 		tweets = @twitter.mentions(:since_id=>since_id).reverse rescue nil
-		puts "\n\nAchtung, keine Mentions abgerufen bekommen!" and return [] if tweets.nil?
+		if tweets.nil?
+			puts "\n\nAchtung, keine Mentions abgerufen bekommen!"
+			return []
+		end
 		tweets.each do |tweet|
 			since_id = tweet['id'] if tweet['id']>since_id
 		end
@@ -237,7 +240,7 @@ class SneakerBot
 			end
 		end
 
-		guests = @current_sneak.participations.all(:sum.gt=>0, :active=>true).collect(&:sum).inject(&:+)
+		guests = @current_sneak.participations.all(:sum.gt=>0, :active=>true).collect(&:sum).inject(&:+) || 0
 		cards = Bonuscard.all(:points.lte=>(5-@current_sneak.bonus_points), :used_by_user=>nil, :order=>[:points.desc, :id])
 		guests.times do
 			card = cards.shift || Bonuscard.new(:created_at_sneak=>@current_sneak) unless card
