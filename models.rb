@@ -61,7 +61,7 @@ class Sneak
 			cards[index].used_by_user = part.user
 		end
 		cards.delete_if{|c| c.points>=5 && c.used_by_user==nil}
-		guests = participations.collect{|p| p.sum-1}.inject(&:+)
+		guests = participations.collect{|p| p.sum-1}.inject(&:+) || 0
 		guests.times do
 			index+=1
 			cards << Bonuscard.new(:created_at_sneak=>self) unless cards[index]

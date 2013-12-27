@@ -63,8 +63,8 @@
 
 - sum = @sneak.participations.all(:active=>true).collect(&:sum).inject(&:+)
 - bonus_use = @sneak.double? ? [] : @sneak.bonuscards.select{|c| c.points == 5}
-- bonus_fill = Bonuscard.all(:used_by_user=>nil, :points.lte=>5-@sneak.bonus_points, :points.gt=>0, :order=>[:points.desc, :id], :limit=>sum-bonus_use.count)
-- max_id = Bonuscard.last[:id]
+- bonus_fill = Bonuscard.all(:used_by_user=>nil, :points.lte=>5-@sneak.bonus_points, :points.gt=>0, :order=>[:points.desc, :id], :limit=>sum-bonus_use.count) rescue []
+- max_id = Bonuscard.last[:id] rescue 0
 - bonus_new = (0..(sum-bonus_use.count-bonus_fill.count-1)).to_a.collect{|i|Bonuscard.new(:id=>max_id+1+i)} rescue []
 %section
 	%h2 Bonuskarten
