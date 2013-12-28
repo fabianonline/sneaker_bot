@@ -3,6 +3,7 @@
     :consumer_secret: ""
     :token: ""
     :secret: ""
+    :bot_user: "sneaker_bot"
 
 :settings:
     :status_time: "18:00"

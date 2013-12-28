@@ -9,7 +9,7 @@
 	
 	%tr
 		%td Zusage
-		%td.monospace @sneaker_bot ja
+		%td.monospace @#{$config[:twitter][:bot_user]} ja
 		%td -
 		%td
 			Sagt für die kommende Sneak zu.
@@ -18,7 +18,7 @@
 	
 	%tr
 		%td Zusage mit PSP
-		%td.monospace @sneaker_bot ja psp
+		%td.monospace @#{$config[:twitter][:bot_user]} ja psp
 		%td -
 		%td
 			Sagt für die kommende Sneak sowie das Prä-Sneak-Programm zu.
@@ -27,7 +27,7 @@
 	
 	%tr
 		%td Zusage mit Freunden
-		%td.monospace @sneaker_bot ja +2
+		%td.monospace @#{$config[:twitter][:bot_user]} ja +2
 		%td -
 		%td 
 			Sagt für die kommende Sneak mit zwei (dem Bot unbekannten) Freunden zu.
@@ -36,7 +36,7 @@
 	
 	%tr
 		%td Absage
-		%td.monospace @sneaker_bot nein
+		%td.monospace @#{$config[:twitter][:bot_user]} nein
 		%td -
 		%td
 			Sagt wieder ab.
@@ -45,64 +45,64 @@
 	
 	%tr
 		%td Automatischer Status
-		%td.monospace @sneaker_bot auto $tweet
+		%td.monospace @#{$config[:twitter][:bot_user]} auto $tweet
 		%td -
 		%td
 			Setzt $tweet als Standardwert, der wöchentlich beim Start einer neuen Sneak-Runde abgearbeitet wird.
 			%br/
 			Beispiel:
-			%span.monospace @sneaker_bot auto ja psp
+			%span.monospace @#{$config[:twitter][:bot_user]} auto ja psp
 	
 	%tr
 		%td Status-Abfrage
-		%td.monospace @sneaker_bot status
+		%td.monospace @#{$config[:twitter][:bot_user]} status
 		%td -
 		%td
 			Fordert den Bot auf, den aktuellen Status auszugeben.
 	
 	%tr
 		%td Interner Tweet
-		%td.monospace  @sneaker_bot set $user $tweet
+		%td.monospace  @#{$config[:twitter][:bot_user]} set $user $tweet
 		%td Admins
 		%td
 			Verarbeitet $tweet intern so, als wäre er von $user eingetragen worden.
 			%br/
 			Beispiel:
-			%span.monospace @sneaker_bot set fabianonline ja
+			%span.monospace @#{$config[:twitter][:bot_user]} set fabianonline ja
 	
 	%tr
 		%td Alias
-		%td.monospace @sneaker_bot set $user alias $name
+		%td.monospace @#{$config[:twitter][:bot_user]} set $user alias $name
 		%td Admins
 		%td
 			Ändert den Alias von $user zu $name.
 			%br/
 			Beispiel:
-			%span.monospace @sneaker_bot set fabianonline alias Fabian
+			%span.monospace @#{$config[:twitter][:bot_user]} set fabianonline alias Fabian
 	
 	%tr
 		%td Bonusstempelzahl
-		%td.monospace @sneaker_bot set $user bonus=$zahl
+		%td.monospace @#{$config[:twitter][:bot_user]} set $user bonus=$zahl
 		%td Admins
 		%td
 			Setzt den Bonusstempelzähler von $user auf $zahl.
 			%br/
 			Beispiel:
-			%span.monospace @sneaker_bot set fabianonline bonus=3
+			%span.monospace @#{$config[:twitter][:bot_user]} set fabianonline bonus=3
 	
 	%tr
 		%td Reservierungen
-		%td.monospace @sneaker_bot reservierung $nummern
+		%td.monospace @#{$config[:twitter][:bot_user]} reservierung $nummern
 		%td Admins
 		%td
 			Trägt die Reservierungen nach $nummern ("anzahl"x"nummer") ein.
 			Bereits eingetragene Reservierungen für die aktuelle Sneak werden gelöscht.
 			%br/
 			Beispiel:
-			%span.monospace @sneaker_bot reservierung 7x1356 3x8539
+			%span.monospace @#{$config[:twitter][:bot_user]} reservierung 7x1356 3x8539
 	%tr
 		%td Sneak-Modus
-		%td.monospace @sneaker_bot sneak $attribute
+		%td.monospace @#{$config[:twitter][:bot_user]} sneak $attribute
 		%td Admins
 		%td
 			Ändert die Attribute der Sneak. Derzeit unterstützt:
@@ -112,21 +112,21 @@
 			Es müssen nicht alle Attribute auf einmal gesetzt werden.
 			%br/
 			Beispiel:
-			%span.monospace @sneaker_bot sneak bonus_points=1 variant=single
+			%span.monospace @#{$config[:twitter][:bot_user]} sneak bonus_points=1 variant=single
 	
 	%tr
 		%td Echo
-		%td.monospace @sneaker_bot echo $text
+		%td.monospace @#{$config[:twitter][:bot_user]} echo $text
 		%td Admins
 		%td
 			Lässt den Sneaker-Bot eien Text twittern.
 			%br/
 			Beispiel:
-			%span.monospace @sneaker_bot echo Denkt dran, diese Woche ist PSPizza. Treffen schon um 18:00 Uhr.
+			%span.monospace @#{$config[:twitter][:bot_user]} echo Denkt dran, diese Woche ist PSPizza. Treffen schon um 18:00 Uhr.
 	
 	%tr
 		%td Bonuskarten
-		%td.monospace @sneaker_bot bc 33=5 34=4 33=unused
+		%td.monospace @#{$config[:twitter][:bot_user]} bc 33=5 34=4 33=unused
 		%td Admins
 		%td
 			Verwaltet Bonuskarten.
