@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'rubygems'
 require 'bundler'
 require 'open-uri'
@@ -316,12 +317,60 @@ class SneakerBot
 
 	def self.console
 		user = User.first(:admin=>true)
+		if user.nil?
+			user = User.new
+			user.bonus_points = 0
+			user.admin = true
+			user.reminder_ignored = 0
+			print "Twitter-User des Admins >"
+			user.username = STDIN.gets.chomp rescue return
+			unless user.save
+				puts "Konnte Nutzer nicht anlegen"
+				return
+			end
+		end
 		sb = SneakerBot.new
 
+		puts "Willkommen #{user.to_s}"
 		print "> "
 		
 		while line = STDIN.gets.chomp rescue nil
-			sb.analyze_tweet(user, line, :internal=>true)
+		case line.downcase
+			when 'quit'
+				return
+			when 'status'
+				# Das Flag. das bei #respond_to_status gesetzt wird, wird nicht ausgewertet
+				sb.tweet_status
+			when 'help'
+				puts 'set [user] [commando]'
+				puts '- [commando] als [user] ausführen'
+				puts 'sneak [bonus_points=(number)] [variant=(single|double)]'
+				puts '- Legt die Bonuspunkte oder die Art der Sneak fest'
+				puts 'bonus(+number|-number|=number)'
+				puts '- Verändert die Bonuspunkte des aktuellen Nutzers. Nur sinnvoll über set'
+				puts 'alias [alias]'
+				puts '- Verändert den Alias des aktuellen Benutzers. Nur sinnvoll über set'
+				puts 'echo [text]'
+				puts '- lässt den Bot [text] twittern'
+				puts 'reservierung [plätze]x[reservierungsnummer] [...]'
+				puts '- registriert eine Reservierung. Plätze muss einstellig, Reservierungsnummer vierstellig sein.'
+				puts 'auto [text]'
+				puts '- verarbeitet [text] für den aktuellen USer direkt nach dem eine neue Sneak erstellt wurde'
+				puts '(ja|jo|jupp|yes|jop)'
+				puts '- der aktuelle User sagt zur Sneak zu'
+				puts '(nein|nope|no)'
+				puts '- der aktuelle User sagt zur Sneak ab'
+				puts 'bc [kartennummer]=(unused|[number]) [...]'
+				puts '- Bonuskarte mit [kartennummer] wird auf die entsprechende Punktzahl gesetzt'
+				puts 'status'
+				puts '- gibt den Status aus'
+				puts
+				puts 'Additionally:'
+				puts '- quit using "quit"'
+				puts '- help using "help"'
+			else
+				sb.analyze_tweet(user, line, :internal=>true)
+			end
 			print "> "
 		end
 	end
