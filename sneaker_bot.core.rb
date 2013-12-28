@@ -20,6 +20,7 @@ class SneakerBot
 				:token => $config[:twitter][:token],
 				:secret => $config[:twitter][:secret]
 		)
+		$config[:twitter][:bot_user] = @twitter.settings['screen_name'] || $config[:twitter][:bot_user] if @twitter
 		@status_changed = false
 		@current_sneak = Sneak.newest
 	end
@@ -38,7 +39,7 @@ class SneakerBot
 	def process_tweet(tweet)
 		puts
 		puts
-		unless p=/^@sneaker_bot\b+(.+)$/i.match(tweet["text"])
+		unless p=/^@#{$config[:twitter][:bot_user]}\b+(.+)$/i.match(tweet["text"])
 			puts "#{tweet["text"]} - Nicht direkt an mich. Ignoriere."
 			return
 		end
